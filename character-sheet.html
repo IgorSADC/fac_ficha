@@ -152,6 +152,36 @@
         font-weight: bold;
         margin: 0;
       }
+      .point-category {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin: 2px;
+        background: #f8f9fa;
+      }
+      .point-category.total-points {
+        background: #fff3cd;
+        border-color: #ffeaa7;
+      }
+      .point-label {
+        font-size: 12px;
+        font-weight: bold;
+        color: #666;
+        margin-bottom: 5px;
+      }
+      .point-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .total-points .point-value {
+        color: #856404;
+      }
+      .point-cost {
+        font-size: 10px;
+        color: #999;
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -210,12 +240,6 @@
                 <input type="number" class="form-control large-input" />
               </div>
             </div>
-            <div class="row mt-2">
-              <div class="col-12">
-                <label class="form-label">Dano de HP</label>
-                <input type="text" class="form-control" />
-              </div>
-            </div>
           </div>
         </div>
         <div class="col-md-6">
@@ -230,17 +254,11 @@
                 <input type="number" class="form-control large-input" />
               </div>
             </div>
-            <div class="row mt-2">
-              <div class="col-12">
-                <label class="form-label">Dano de Mana</label>
-                <input type="text" class="form-control" />
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Section - Movimento -->
+      <!-- Bottom Section - Movimento and Point Calculator -->
       <div class="row mb-3 justify-content-center">
         <!-- Movimento -->
         <div class="col-md-3">
@@ -254,6 +272,40 @@
                 class="form-control large-input mb-2"
                 placeholder="Valor"
               />
+            </div>
+          </div>
+        </div>
+
+        <!-- Point Calculator -->
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header bg-warning text-dark text-center">
+              <strong>Calculadora de Pontos</strong>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <div class="point-category">
+                    <div class="point-label">Perícias Primárias</div>
+                    <div class="point-value" id="attribute-points">0</div>
+                    <div class="point-cost">1 pt/nível</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="point-category">
+                    <div class="point-label">Perícias Secundárias</div>
+                    <div class="point-value" id="skill-points">0</div>
+                    <div class="point-cost">1/2/4 pts</div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="point-category total-points">
+                    <div class="point-label">TOTAL</div>
+                    <div class="point-value" id="total-points">0</div>
+                    <div class="point-cost">pontos</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -277,192 +329,11 @@
               Recursos
             </div>
             <div class="p-3">
-              <div class="checkbox-list">
-                <div
-                  class="form-check skill-levels"
-                  data-skill="Dinheiro"
-                  data-section="recursos"
-                >
-                  <label class="form-check-label skill-name">Dinheiro</label>
-                  <div class="skill-level-boxes">
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_dinheiro_1"
-                      data-skill="Dinheiro"
-                      data-section="recursos"
-                      data-level="1"
-                      onclick="toggleSkillLevel(this, 1)"
-                    />
-                    <label class="level-label" for="recursos_dinheiro_1"
-                      >1</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_dinheiro_2"
-                      data-skill="Dinheiro"
-                      data-section="recursos"
-                      data-level="2"
-                      onclick="toggleSkillLevel(this, 2)"
-                    />
-                    <label class="level-label" for="recursos_dinheiro_2"
-                      >2</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_dinheiro_3"
-                      data-skill="Dinheiro"
-                      data-section="recursos"
-                      data-level="3"
-                      onclick="toggleSkillLevel(this, 3)"
-                    />
-                    <label class="level-label" for="recursos_dinheiro_3"
-                      >3</label
-                    >
-                  </div>
-                </div>
-                <div
-                  class="form-check skill-levels"
-                  data-skill="Acompanhante"
-                  data-section="recursos"
-                >
-                  <label class="form-check-label skill-name"
-                    >Acompanhante</label
-                  >
-                  <div class="skill-level-boxes">
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_acompanhante_1"
-                      data-skill="Acompanhante"
-                      data-section="recursos"
-                      data-level="1"
-                      onclick="toggleSkillLevel(this, 1)"
-                    />
-                    <label class="level-label" for="recursos_acompanhante_1"
-                      >1</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_acompanhante_2"
-                      data-skill="Acompanhante"
-                      data-section="recursos"
-                      data-level="2"
-                      onclick="toggleSkillLevel(this, 2)"
-                    />
-                    <label class="level-label" for="recursos_acompanhante_2"
-                      >2</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_acompanhante_3"
-                      data-skill="Acompanhante"
-                      data-section="recursos"
-                      data-level="3"
-                      onclick="toggleSkillLevel(this, 3)"
-                    />
-                    <label class="level-label" for="recursos_acompanhante_3"
-                      >3</label
-                    >
-                  </div>
-                </div>
-                <div
-                  class="form-check skill-levels"
-                  data-skill="Equipamento"
-                  data-section="recursos"
-                >
-                  <label class="form-check-label skill-name">Equipamento</label>
-                  <div class="skill-level-boxes">
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_equipamento_1"
-                      data-skill="Equipamento"
-                      data-section="recursos"
-                      data-level="1"
-                      onclick="toggleSkillLevel(this, 1)"
-                    />
-                    <label class="level-label" for="recursos_equipamento_1"
-                      >1</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_equipamento_2"
-                      data-skill="Equipamento"
-                      data-section="recursos"
-                      data-level="2"
-                      onclick="toggleSkillLevel(this, 2)"
-                    />
-                    <label class="level-label" for="recursos_equipamento_2"
-                      >2</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_equipamento_3"
-                      data-skill="Equipamento"
-                      data-section="recursos"
-                      data-level="3"
-                      onclick="toggleSkillLevel(this, 3)"
-                    />
-                    <label class="level-label" for="recursos_equipamento_3"
-                      >3</label
-                    >
-                  </div>
-                </div>
-                <div
-                  class="form-check skill-levels"
-                  data-skill="Companheiros"
-                  data-section="recursos"
-                >
-                  <label class="form-check-label skill-name"
-                    >Companheiros</label
-                  >
-                  <div class="skill-level-boxes">
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_companheiros_1"
-                      data-skill="Companheiros"
-                      data-section="recursos"
-                      data-level="1"
-                      onclick="toggleSkillLevel(this, 1)"
-                    />
-                    <label class="level-label" for="recursos_companheiros_1"
-                      >1</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_companheiros_2"
-                      data-skill="Companheiros"
-                      data-section="recursos"
-                      data-level="2"
-                      onclick="toggleSkillLevel(this, 2)"
-                    />
-                    <label class="level-label" for="recursos_companheiros_2"
-                      >2</label
-                    >
-                    <input
-                      class="form-check-input skill-level"
-                      type="checkbox"
-                      id="recursos_companheiros_3"
-                      data-skill="Companheiros"
-                      data-section="recursos"
-                      data-level="3"
-                      onclick="toggleSkillLevel(this, 3)"
-                    />
-                    <label class="level-label" for="recursos_companheiros_3"
-                      >3</label
-                    >
-                  </div>
-                </div>
-              </div>
+              <textarea
+                class="form-control"
+                rows="8"
+                placeholder="Liste seus recursos aqui..."
+              ></textarea>
             </div>
           </div>
         </div>
@@ -554,30 +425,6 @@
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- All Sections HTML Preview (Hidden by default) -->
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-header">
-              <button
-                class="btn btn-info btn-sm"
-                onclick="toggleAllSectionsPreview()"
-                type="button"
-              >
-                Toggle All Sections Preview
-              </button>
-            </div>
-            <div
-              class="card-body"
-              id="all-sections-preview"
-              style="display: none"
-            >
-              <div id="all-sections-container"></div>
             </div>
           </div>
         </div>
@@ -1070,6 +917,9 @@
           "All sections have been dynamically updated with their configurations"
         );
         console.log("Generated HTML for all sections:", allSectionsHtml);
+
+        // Initial point calculation
+        calculateTotalPoints();
       });
 
       // Function to render all sections from JSON in the main layout
@@ -1218,6 +1068,9 @@
 
         // Update skill availability based on attribute value
         updateSkillAvailability(sectionId, value);
+
+        // Update point calculation
+        calculateTotalPoints();
       }
 
       // Function to toggle skill levels (1, 2, 3)
@@ -1226,33 +1079,6 @@
         const skillName = checkbox.dataset.skill;
 
         if (!sectionId) return;
-
-        // Special handling for Resources section (no attribute requirement)
-        if (sectionId === "recursos") {
-          // Get all level checkboxes for this skill
-          const skillContainer = checkbox.closest(".skill-levels");
-          const levelCheckboxes =
-            skillContainer.querySelectorAll(".skill-level");
-
-          if (checkbox.checked) {
-            // If checking a level, also check all lower levels
-            levelCheckboxes.forEach((cb) => {
-              const cbLevel = parseInt(cb.dataset.level);
-              if (cbLevel <= level) {
-                cb.checked = true;
-              }
-            });
-          } else {
-            // If unchecking a level, also uncheck all higher levels
-            levelCheckboxes.forEach((cb) => {
-              const cbLevel = parseInt(cb.dataset.level);
-              if (cbLevel >= level) {
-                cb.checked = false;
-              }
-            });
-          }
-          return true;
-        }
 
         // Find the corresponding attribute for this section
         const config = skillSectionsConfig.find(
@@ -1298,6 +1124,8 @@
           });
         }
 
+        // Update point calculation after skill change
+        calculateTotalPoints();
         return true;
       }
 
@@ -1341,7 +1169,66 @@
         });
       }
 
-      // Function to toggle the all sections preview
+      // Function to calculate skill level cost
+      function calculateSkillCost(level) {
+        switch (level) {
+          case 1:
+            return 1;
+          case 2:
+            return 2;
+          case 3:
+            return 4;
+          default:
+            return 0;
+        }
+      }
+
+      // Function to calculate total points
+      function calculateTotalPoints() {
+        let attributePoints = 0;
+        let skillPoints = 0;
+
+        // Calculate attribute points (1 point per level)
+        document.querySelectorAll("input[data-attribute]").forEach((input) => {
+          const value = parseInt(input.value) || 0;
+          attributePoints += value;
+        });
+
+        // Calculate skill points (1/2/4 points for levels 1/2/3)
+        // Exclude recursos section since it's now just text
+        document.querySelectorAll(".skill-levels").forEach((skillContainer) => {
+          const sectionId = skillContainer.dataset.section;
+
+          // Skip recursos section
+          if (sectionId === "recursos") return;
+
+          const levelCheckboxes = skillContainer.querySelectorAll(
+            ".skill-level:checked"
+          );
+
+          // Find the highest checked level for this skill
+          let maxLevel = 0;
+          levelCheckboxes.forEach((checkbox) => {
+            const level = parseInt(checkbox.dataset.level);
+            if (level > maxLevel) maxLevel = level;
+          });
+
+          skillPoints += calculateSkillCost(maxLevel);
+        });
+
+        // Update the display
+        document.getElementById("attribute-points").textContent =
+          attributePoints;
+        document.getElementById("skill-points").textContent = skillPoints;
+        document.getElementById("total-points").textContent =
+          attributePoints + skillPoints;
+
+        return {
+          attributes: attributePoints,
+          skills: skillPoints,
+          total: attributePoints + skillPoints,
+        };
+      }
       function toggleAllSectionsPreview() {
         const previewDiv = document.getElementById("all-sections-preview");
         if (previewDiv) {
