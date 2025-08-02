@@ -487,6 +487,9 @@
                   onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
                 />
               </div>
+              <button class="btn btn-sm btn-outline-primary mt-1" onclick="rollAttribute('${config.attribute.dataAttribute}', '${config.attribute.label}')" title="Rolar ${config.attribute.label}">
+                🎲 Rolar
+              </button>
             </div>
           `
             : "";
@@ -526,6 +529,9 @@
                             <label class="level-label" for="${sectionId}_${index}_2">2</label>
                             <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_3" data-skill="${skill.name}" data-section="${sectionId}" data-level="3" onclick="toggleSkillLevel(this, 3)">
                             <label class="level-label" for="${sectionId}_${index}_3">3</label>
+                            <button class="btn btn-xs btn-outline-success ms-2" onclick="rollSkill('${sectionId}', '${skill.name}')" title="Rolar ${skill.name}" style="font-size: 10px; padding: 2px 6px;">
+                              🎲
+                            </button>
                         </div>
                     </div>
                 `
@@ -691,6 +697,97 @@
           ],
         },
       ];
+
+      // Roll functions for attributes and skills
+      function rollAttribute(attributeKey, attributeName) {
+        const attributeInput = document.querySelector(
+          `input[data-attribute="${attributeKey}"]`
+        );
+        if (!attributeInput) {
+          alert(`Atributo ${attributeName} não encontrado!`);
+          return;
+        }
+
+        const attributeLevel = parseInt(attributeInput.value) || 0;
+
+        // Roll dice based on attribute level
+        const diceCount = attributeLevel + 2; // +2 for base dice
+        const rolls = [];
+
+        for (let i = 0; i < diceCount; i++) {
+          rolls.push(Math.floor(Math.random() * 6) + 1);
+        }
+
+        const total = rolls.reduce((sum, roll) => sum + roll, 0);
+        const result = `🎲 ${attributeName} (${diceCount}d6): [${rolls.join(
+          ", "
+        )}] = ${total}`;
+
+        // Display result (you can customize this)
+        alert(result);
+        console.log(result);
+      }
+
+      function rollSkill(sectionId, skillName) {
+        // Find the skill configuration
+        const config = skillSectionsConfig.find(
+          (c) => c.sectionId === sectionId
+        );
+        if (!config || !config.attribute) {
+          alert(`Configuração não encontrada para ${skillName}!`);
+          return;
+        }
+
+        // Get attribute level
+        const attributeInput = document.querySelector(
+          `input[data-attribute="${config.attribute.dataAttribute}"]`
+        );
+        if (!attributeInput) {
+          alert(`Atributo ${config.attribute.label} não encontrado!`);
+          return;
+        }
+        const attributeLevel = parseInt(attributeInput.value) || 0;
+
+        // Get skill level
+        const skillContainer = document.querySelector(
+          `[data-skill="${skillName}"][data-section="${sectionId}"]`
+        );
+        if (!skillContainer) {
+          alert(`Habilidade ${skillName} não encontrada!`);
+          return;
+        }
+
+        const levelCheckboxes = skillContainer.querySelectorAll(
+          ".skill-level:checked"
+        );
+        let skillLevel = 0;
+        levelCheckboxes.forEach((checkbox) => {
+          const level = parseInt(checkbox.dataset.level);
+          if (level > skillLevel) skillLevel = level;
+        });
+
+        // TODO Implement skill adapter
+        const flatBonus = 0; // Placeholder for flat bonus logic
+
+        const diceCount = attributeLevel + 2; // +2 for base dice
+        const rolls = [];
+
+        for (let i = 0; i < diceCount; i++) {
+          rolls.push(Math.floor(Math.random() * 6) + 1);
+        }
+
+        const flatBonusString = flatBonus > 0 ? ` + ${flatBonus}` : "";
+
+        // Calculate total dice (attribute + skill)
+        const total = rolls.reduce((sum, roll) => sum + roll, 0) + flatBonus;
+        const result = `🎲 ${skillName} (${diceCount}d6): [${rolls.join(
+          ", "
+        )}] ${flatBonusString} = ${total}`;
+
+        // Display result (you can customize this)
+        alert(result);
+        console.log(result);
+      }
 
       // Event handler for section clicks
       function handleSectionClick(sectionId) {
@@ -951,11 +1048,13 @@
             const attributeInput = document.querySelector(
               `input[data-attribute="${config.attribute.dataAttribute}"]`
             );
-            const attributeValue = attributeInput ? parseInt(attributeInput.value) || 0 : 0;
+            const attributeValue = attributeInput
+              ? parseInt(attributeInput.value) || 0
+              : 0;
             updateSkillAvailability(config.sectionId, attributeValue);
           }
         });
-        
+
         validateAttributeAndSkills();
         calculateTotalPoints();
       }
@@ -1068,7 +1167,7 @@
 
         // Load any saved character data
         const hasLoadedData = loadCharacterDataFromStorage();
-        
+
         // If no saved data was loaded, initialize skill availability with default values
         if (!hasLoadedData) {
           skillSectionsConfig.forEach((config) => {
@@ -1143,6 +1242,9 @@
                     onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
                   />
                 </div>
+                <button class="btn btn-sm btn-outline-primary mt-1" onclick="rollAttribute('${config.attribute.dataAttribute}', '${config.attribute.label}')" title="Rolar ${config.attribute.label}">
+                  🎲 Rolar
+                </button>
               </div>
             `
               : "";
@@ -1191,6 +1293,9 @@
                     onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
                   />
                 </div>
+                <button class="btn btn-sm btn-outline-primary mt-1" onclick="rollAttribute('${config.attribute.dataAttribute}', '${config.attribute.label}')" title="Rolar ${config.attribute.label}">
+                  🎲 Rolar
+                </button>
               </div>
             `
               : "";
