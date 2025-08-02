@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ficha de Personagem - Sistema FAC</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .hexagon-container {
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+      }
+      .hexagon {
+        width: 40px;
+        height: 35px;
+        border: 2px solid #333;
+        margin: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        clip-path: polygon(
+          25% 0%,
+          75% 0%,
+          100% 50%,
+          75% 100%,
+          25% 100%,
+          0% 50%
+        );
+        background: white;
+      }
+      .attribute-circle {
+        width: 80px;
+        height: 80px;
+        border: 3px solid #333;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        margin: 10px auto;
+      }
+      .attribute-label {
+        font-size: 12px;
+        font-weight: bold;
+      }
+      .attribute-value {
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .skill-section {
+        border: 2px solid #333;
+        padding: 10px;
+        margin: 5px 0;
+        background: #f8f9fa;
+      }
+      .section-title {
+        background: #333;
+        color: white;
+        padding: 5px 10px;
+        margin: -10px -10px 10px -10px;
+        font-weight: bold;
+        text-align: center;
+      }
+      .checkbox-list {
+        columns: 1;
+        column-gap: 20px;
+      }
+      .form-check {
+        margin-bottom: 8px;
+        break-inside: avoid;
+      }
+      .skill-levels {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 4px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        background: white;
+      }
+      .skill-name {
+        font-weight: 500;
+        min-width: 120px;
+        margin-bottom: 0;
+      }
+      .skill-level-boxes {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .skill-level {
+        margin: 0 2px;
+        width: 16px;
+        height: 16px;
+      }
+      .level-label {
+        font-size: 11px;
+        font-weight: bold;
+        margin: 0 4px 0 0;
+        min-width: 8px;
+        text-align: center;
+      }
+      .skill-levels.disabled {
+        opacity: 0.4;
+        background: #f8f9fa;
+      }
+      .skill-levels.disabled .skill-level {
+        cursor: not-allowed;
+      }
+      .skill-level:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .skill-level:disabled + .level-label {
+        color: #6c757d;
+        opacity: 0.5;
+      }
+      .hp-mana-section {
+        border: 2px solid #333;
+        padding: 10px;
+        text-align: center;
+      }
+      .large-input {
+        font-size: 18px;
+        text-align: center;
+        font-weight: bold;
+      }
+      .attack-table th,
+      .attack-table td {
+        text-align: center;
+        vertical-align: middle;
+      }
+      .resources-section,
+      .inventory-section {
+        border: 2px solid #333;
+        background: white;
+        min-height: 200px;
+      }
+      .section-header {
+        background: #333;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container-fluid py-3">
+      <!-- Header Section - Character Name and Description -->
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-center">
+              <strong>Nome do Personagem</strong>
+            </div>
+            <div class="card-body">
+              <input
+                type="text"
+                class="form-control form-control-lg text-center"
+                placeholder="Nome do personagem"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header bg-dark text-white text-center">
+              <strong>Descrição:</strong>
+            </div>
+            <div class="card-body">
+              <textarea
+                class="form-control"
+                rows="4"
+                placeholder="Descrição do personagem..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Attributes Section -->
+      <div class="row mb-3">
+        <!-- Dynamic Skill Sections Container -->
+        <div class="col-md-12" id="dynamic-skill-sections">
+          <!-- All skill sections will be rendered here from JSON -->
+        </div>
+      </div>
+
+      <!-- HP and Mana Section -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="hp-mana-section">
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label"><strong>HP Total</strong></label>
+                <input type="number" class="form-control large-input" />
+              </div>
+              <div class="col-6">
+                <label class="form-label"><strong>HP Atual</strong></label>
+                <input type="number" class="form-control large-input" />
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-12">
+                <label class="form-label">Dano de HP</label>
+                <input type="text" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="hp-mana-section">
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label"><strong>Mana Total</strong></label>
+                <input type="number" class="form-control large-input" />
+              </div>
+              <div class="col-6">
+                <label class="form-label"><strong>Mana Atual</strong></label>
+                <input type="number" class="form-control large-input" />
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-12">
+                <label class="form-label">Dano de Mana</label>
+                <input type="text" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section - Movimento -->
+      <div class="row mb-3 justify-content-center">
+        <!-- Movimento -->
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-header bg-secondary text-white text-center">
+              <strong>Movimento</strong>
+            </div>
+            <div class="card-body text-center">
+              <input
+                type="number"
+                class="form-control large-input mb-2"
+                placeholder="Valor"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Dynamic Skill Sections Container -->
+      <div class="row mb-3" id="additional-skill-sections">
+        <!-- Additional skill sections will be rendered here from JSON -->
+      </div>
+
+      <!-- Resources, Inventory and Attacks Section -->
+      <div class="row">
+        <!-- Resources -->
+        <div class="col-md-4">
+          <div class="resources-section" data-section="recursos">
+            <div
+              class="section-header"
+              onclick="handleSectionClick('recursos')"
+              style="cursor: pointer"
+            >
+              Recursos
+            </div>
+            <div class="p-3">
+              <div class="checkbox-list">
+                <div
+                  class="form-check skill-levels"
+                  data-skill="Dinheiro"
+                  data-section="recursos"
+                >
+                  <label class="form-check-label skill-name">Dinheiro</label>
+                  <div class="skill-level-boxes">
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_dinheiro_1"
+                      data-skill="Dinheiro"
+                      data-section="recursos"
+                      data-level="1"
+                      onclick="toggleSkillLevel(this, 1)"
+                    />
+                    <label class="level-label" for="recursos_dinheiro_1"
+                      >1</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_dinheiro_2"
+                      data-skill="Dinheiro"
+                      data-section="recursos"
+                      data-level="2"
+                      onclick="toggleSkillLevel(this, 2)"
+                    />
+                    <label class="level-label" for="recursos_dinheiro_2"
+                      >2</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_dinheiro_3"
+                      data-skill="Dinheiro"
+                      data-section="recursos"
+                      data-level="3"
+                      onclick="toggleSkillLevel(this, 3)"
+                    />
+                    <label class="level-label" for="recursos_dinheiro_3"
+                      >3</label
+                    >
+                  </div>
+                </div>
+                <div
+                  class="form-check skill-levels"
+                  data-skill="Acompanhante"
+                  data-section="recursos"
+                >
+                  <label class="form-check-label skill-name"
+                    >Acompanhante</label
+                  >
+                  <div class="skill-level-boxes">
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_acompanhante_1"
+                      data-skill="Acompanhante"
+                      data-section="recursos"
+                      data-level="1"
+                      onclick="toggleSkillLevel(this, 1)"
+                    />
+                    <label class="level-label" for="recursos_acompanhante_1"
+                      >1</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_acompanhante_2"
+                      data-skill="Acompanhante"
+                      data-section="recursos"
+                      data-level="2"
+                      onclick="toggleSkillLevel(this, 2)"
+                    />
+                    <label class="level-label" for="recursos_acompanhante_2"
+                      >2</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_acompanhante_3"
+                      data-skill="Acompanhante"
+                      data-section="recursos"
+                      data-level="3"
+                      onclick="toggleSkillLevel(this, 3)"
+                    />
+                    <label class="level-label" for="recursos_acompanhante_3"
+                      >3</label
+                    >
+                  </div>
+                </div>
+                <div
+                  class="form-check skill-levels"
+                  data-skill="Equipamento"
+                  data-section="recursos"
+                >
+                  <label class="form-check-label skill-name">Equipamento</label>
+                  <div class="skill-level-boxes">
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_equipamento_1"
+                      data-skill="Equipamento"
+                      data-section="recursos"
+                      data-level="1"
+                      onclick="toggleSkillLevel(this, 1)"
+                    />
+                    <label class="level-label" for="recursos_equipamento_1"
+                      >1</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_equipamento_2"
+                      data-skill="Equipamento"
+                      data-section="recursos"
+                      data-level="2"
+                      onclick="toggleSkillLevel(this, 2)"
+                    />
+                    <label class="level-label" for="recursos_equipamento_2"
+                      >2</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_equipamento_3"
+                      data-skill="Equipamento"
+                      data-section="recursos"
+                      data-level="3"
+                      onclick="toggleSkillLevel(this, 3)"
+                    />
+                    <label class="level-label" for="recursos_equipamento_3"
+                      >3</label
+                    >
+                  </div>
+                </div>
+                <div
+                  class="form-check skill-levels"
+                  data-skill="Companheiros"
+                  data-section="recursos"
+                >
+                  <label class="form-check-label skill-name"
+                    >Companheiros</label
+                  >
+                  <div class="skill-level-boxes">
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_companheiros_1"
+                      data-skill="Companheiros"
+                      data-section="recursos"
+                      data-level="1"
+                      onclick="toggleSkillLevel(this, 1)"
+                    />
+                    <label class="level-label" for="recursos_companheiros_1"
+                      >1</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_companheiros_2"
+                      data-skill="Companheiros"
+                      data-section="recursos"
+                      data-level="2"
+                      onclick="toggleSkillLevel(this, 2)"
+                    />
+                    <label class="level-label" for="recursos_companheiros_2"
+                      >2</label
+                    >
+                    <input
+                      class="form-check-input skill-level"
+                      type="checkbox"
+                      id="recursos_companheiros_3"
+                      data-skill="Companheiros"
+                      data-section="recursos"
+                      data-level="3"
+                      onclick="toggleSkillLevel(this, 3)"
+                    />
+                    <label class="level-label" for="recursos_companheiros_3"
+                      >3</label
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="col-md-4">
+          <div class="resources-section">
+            <div class="section-header">Inventário</div>
+            <div class="p-3">
+              <textarea
+                class="form-control"
+                rows="8"
+                placeholder="Lista de itens do inventário..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attacks -->
+        <div class="col-md-4">
+          <div class="resources-section">
+            <div class="section-header">Ataques</div>
+            <div class="p-3">
+              <table class="table table-sm attack-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Dano</th>
+                    <th>Alcance</th>
+                    <th>Tipo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Sections HTML Preview (Hidden by default) -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <button
+                class="btn btn-info btn-sm"
+                onclick="toggleAllSectionsPreview()"
+                type="button"
+              >
+                Toggle All Sections Preview
+              </button>
+            </div>
+            <div
+              class="card-body"
+              id="all-sections-preview"
+              style="display: none"
+            >
+              <div id="all-sections-container"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Extensible Component System for Character Sheet
+      class SkillSectionComponent {
+        constructor(containerId) {
+          this.container = document.getElementById(containerId);
+        }
+
+        // Render a skill section from JSON configuration
+        renderSection(config) {
+          const attributeHtml = config.attribute
+            ? `
+            <div class="text-center mb-3">
+              <div class="attribute-circle">
+                <div class="attribute-label">${config.attribute.label}</div>
+                <input
+                  type="number"
+                  class="form-control form-control-sm"
+                  style="width: 50px; text-align: center"
+                  value="0"
+                  min="0"
+                  max="3"
+                  data-attribute="${config.attribute.dataAttribute}"
+                  onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
+                />
+              </div>
+            </div>
+          `
+            : "";
+
+          const sectionHtml = `
+                    <div class="skill-${config.sectionId}-section">
+                        ${attributeHtml}
+                        <div class="section-title" onclick="${
+                          config.onClick || "void(0)"
+                        }" style="cursor: ${
+            config.onClick ? "pointer" : "default"
+          }">
+                            ${config.label}
+                        </div>
+                        <div class="checkbox-list">
+                            ${this.generateCheckboxes(
+                              config.skills,
+                              config.sectionId
+                            )}
+                        </div>
+                    </div>
+                `;
+          return sectionHtml;
+        }
+
+        // Generate checkboxes based on skills array - now with 3 levels
+        generateCheckboxes(skills, sectionId) {
+          return skills
+            .map(
+              (skill, index) => `
+                    <div class="form-check skill-levels" data-skill="${skill.name}" data-section="${sectionId}">
+                        <label class="form-check-label skill-name">${skill.name}</label>
+                        <div class="skill-level-boxes">
+                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_1" data-skill="${skill.name}" data-section="${sectionId}" data-level="1" onclick="toggleSkillLevel(this, 1)">
+                            <label class="level-label" for="${sectionId}_${index}_1">1</label>
+                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_2" data-skill="${skill.name}" data-section="${sectionId}" data-level="2" onclick="toggleSkillLevel(this, 2)">
+                            <label class="level-label" for="${sectionId}_${index}_2">2</label>
+                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_3" data-skill="${skill.name}" data-section="${sectionId}" data-level="3" onclick="toggleSkillLevel(this, 3)">
+                            <label class="level-label" for="${sectionId}_${index}_3">3</label>
+                        </div>
+                    </div>
+                `
+            )
+            .join("");
+        }
+
+        // Render multiple sections from JSON array
+        renderFromJson(sectionsConfig) {
+          let html = "";
+          sectionsConfig.forEach((config) => {
+            html += this.renderSection(config);
+          });
+          if (this.container) {
+            this.container.innerHTML = html;
+          }
+          return html;
+        }
+      }
+
+      // Configuration JSON for skill sections
+      const skillSectionsConfig = [
+        // Conhecimento
+        {
+          label: "Conhecimento",
+          sectionId: "conhecimento",
+          onClick: "handleSectionClick('conhecimento')",
+          attribute: { label: "CON", dataAttribute: "con" },
+          skills: [
+            { name: "Cartografia" },
+            { name: "Ciências" },
+            { name: "Demolição" },
+            { name: "Investigação" },
+            { name: "Matemática" },
+            { name: "Medicina" },
+            { name: "Mestre de Venenos" },
+            { name: "Natureza" },
+            { name: "Psicologia" },
+            { name: "Veterinária" },
+          ],
+        },
+        {
+          label: "Social",
+          sectionId: "social",
+          onClick: "handleSectionClick('social')",
+          attribute: { label: "SOC", dataAttribute: "soc" },
+          skills: [
+            { name: "Contar Histórias" },
+            { name: "Discursar" },
+            { name: "Embromação" },
+            { name: "Intimidação" },
+            { name: "Mentira" },
+            { name: "Negociação" },
+            { name: "Persuasão" },
+            { name: "Política" },
+            { name: "Sedução" },
+          ],
+        },
+        {
+          label: "Cultura",
+          sectionId: "cultura",
+          onClick: "handleSectionClick('cultura')",
+          attribute: { label: "CUL", dataAttribute: "cul" },
+          skills: [
+            { name: "Belas Artes" },
+            { name: "Folclore" },
+            { name: "História" },
+            { name: "Jogos" },
+            { name: "Morfologia" },
+            { name: "Performance" },
+            { name: "Religião" },
+            { name: "Forja" },
+          ],
+        },
+        {
+          label: "Atletismo",
+          sectionId: "atletismo",
+          onClick: "handleSectionClick('atletismo')",
+          attribute: { label: "ALT", dataAttribute: "alt" },
+          skills: [
+            { name: "Acrobacia" },
+            { name: "Atlética" },
+            { name: "Carga" },
+            { name: "Constituição" },
+            { name: "Equilíbrio" },
+            { name: "Força" },
+            { name: "Reflexos" },
+          ],
+        },
+        {
+          label: "Manufatura",
+          sectionId: "manufatura",
+          onClick: "handleSectionClick('manufatura')",
+          attribute: { label: "MAN", dataAttribute: "man" },
+          skills: [
+            { name: "Alfaiatismo" },
+            { name: "Alquimia" },
+            { name: "Carpintaria" },
+            { name: "Disfarce" },
+            { name: "Encantamento" },
+            { name: "Escriba" },
+            { name: "Falsificação" },
+            { name: "Forja" },
+            { name: "Leather Working" },
+          ],
+        },
+        {
+          label: "Combate",
+          sectionId: "combate",
+          onClick: "handleSectionClick('combate')",
+          attribute: { label: "COM", dataAttribute: "com" },
+          skills: [
+            { name: "Acurácia" },
+            { name: "Ambidestria" },
+            { name: "Combate Improvisado" },
+            { name: "Esgrima" },
+            { name: "Furioso" },
+            { name: "Longa Vista" },
+            { name: "Marcial" },
+            { name: "Oportunista" },
+            { name: "Two-Handed" },
+          ],
+        },
+        {
+          label: "Sobrevivência",
+          sectionId: "sobrevivencia",
+          onClick: "handleSectionClick('sobrevivencia')",
+          attribute: { label: "SOB", dataAttribute: "sob" },
+          skills: [
+            { name: "Acampamento" },
+            { name: "Adestramento" },
+            { name: "Companheiro Animal" },
+            { name: "Cozinhar" },
+            { name: "Esfolagem" },
+            { name: "Furtividade" },
+            { name: "Improviso" },
+            { name: "Lockpick" },
+            { name: "Montar Armadilhas" },
+            { name: "Montaria" },
+            { name: "Percepção" },
+            { name: "Pick Pocket" },
+            { name: "Rastreio" },
+            { name: "Vontade" },
+          ],
+        },
+
+        {
+          label: "Magia",
+          sectionId: "magia",
+          onClick: "handleSectionClick('magia')",
+          attribute: { label: "MAG", dataAttribute: "mag" },
+          skills: [
+            { name: "Acadêmico" },
+            { name: "Bênçãos" },
+            { name: "Conjuração" },
+            { name: "Energia" },
+            { name: "Fé" },
+            { name: "Feitiçaria" },
+            { name: "Ilusionismo" },
+            { name: "Invocador" },
+            { name: "Ocultismo" },
+            { name: "Shamanismo" },
+          ],
+        },
+      ];
+
+      // Event handler for section clicks
+      function handleSectionClick(sectionId) {
+        console.log(`Section clicked: ${sectionId}`);
+
+        // Example: Toggle section highlight
+        const section = document.querySelector(`[data-section="${sectionId}"]`);
+        if (section) {
+          section.classList.toggle("highlighted");
+        }
+
+        // Custom logic can be added here for each section
+        switch (sectionId) {
+          case "social":
+            console.log("Social skills section clicked");
+            break;
+          case "cultura":
+            console.log("Cultura skills section clicked");
+            break;
+          case "atletismo":
+            console.log("Atletismo skills section clicked");
+            break;
+          case "manual":
+            console.log("Manual skills section clicked");
+            break;
+          case "combate":
+            console.log("Combate skills section clicked");
+            break;
+          case "sobrevivencia":
+            console.log("Sobrevivência skills section clicked");
+            break;
+          case "sistema_faq":
+            console.log("Sistema FAQ section clicked");
+            break;
+          case "magia":
+            console.log("Magia section clicked");
+            break;
+          case "recursos":
+            console.log("Recursos section clicked");
+            break;
+          default:
+            console.log("Unknown section clicked");
+        }
+      }
+
+      // Function to save character data to JSON
+      function saveCharacterData() {
+        const data = {
+          characterName: document.querySelector(
+            'input[placeholder="Nome do personagem"]'
+          ).value,
+          description: document.querySelector(
+            'textarea[placeholder="Descrição do personagem..."]'
+          ).value,
+          attributes: {
+            con:
+              document.querySelector('input[data-attribute="con"]')?.value || 0,
+            soc:
+              document.querySelector('input[data-attribute="soc"]')?.value || 0,
+            mag:
+              document.querySelector('input[data-attribute="mag"]')?.value || 0,
+            alt:
+              document.querySelector('input[data-attribute="alt"]')?.value || 0,
+            man:
+              document.querySelector('input[data-attribute="man"]')?.value || 0,
+            com:
+              document.querySelector('input[data-attribute="com"]')?.value || 0,
+            sob:
+              document.querySelector('input[data-attribute="sob"]')?.value || 0,
+            cul:
+              document.querySelector('input[data-attribute="cul"]')?.value || 0,
+          },
+          skills: {},
+          hp: {
+            total:
+              document.querySelector('label:contains("HP Total") + input')
+                ?.value || 0,
+            current:
+              document.querySelector('label:contains("HP Atual") + input')
+                ?.value || 0,
+          },
+          mana: {
+            total:
+              document.querySelector('label:contains("Mana Total") + input')
+                ?.value || 0,
+            current:
+              document.querySelector('label:contains("Mana Atual") + input')
+                ?.value || 0,
+          },
+        };
+
+        // Collect skill levels (1, 2, 3) instead of just checked/unchecked
+        document.querySelectorAll(".skill-levels").forEach((skillContainer) => {
+          const skillName = skillContainer.dataset.skill;
+          const levelCheckboxes = skillContainer.querySelectorAll(
+            ".skill-level:checked"
+          );
+
+          // Find the highest checked level for this skill
+          let maxLevel = 0;
+          levelCheckboxes.forEach((checkbox) => {
+            const level = parseInt(checkbox.dataset.level);
+            if (level > maxLevel) maxLevel = level;
+          });
+
+          data.skills[skillName] = maxLevel;
+        });
+
+        return data;
+      }
+
+      // Function to load character data from JSON
+      function loadCharacterData(data) {
+        if (data.characterName) {
+          document.querySelector(
+            'input[placeholder="Nome do personagem"]'
+          ).value = data.characterName;
+        }
+        if (data.description) {
+          document.querySelector(
+            'textarea[placeholder="Descrição do personagem..."]'
+          ).value = data.description;
+        }
+
+        // Load attributes
+        Object.keys(data.attributes || {}).forEach((attr) => {
+          const input = document.querySelector(
+            `input[data-attribute="${attr}"]`
+          );
+          if (input) input.value = data.attributes[attr];
+        });
+
+        // Load skills with levels
+        Object.keys(data.skills || {}).forEach((skillName) => {
+          const skillLevel = data.skills[skillName];
+          const skillContainer = document.querySelector(
+            `[data-skill="${skillName}"].skill-levels`
+          );
+
+          if (skillContainer && skillLevel > 0) {
+            // Check all levels up to the saved level
+            for (let level = 1; level <= skillLevel; level++) {
+              const checkbox = skillContainer.querySelector(
+                `input[data-level="${level}"]`
+              );
+              if (checkbox) checkbox.checked = true;
+            }
+          }
+        });
+      }
+
+      // Add CSS for highlighted sections
+      const style = document.createElement("style");
+      style.textContent = `
+            .highlighted .section-title {
+                background: #007bff !important;
+                transform: scale(1.02);
+                transition: all 0.2s ease;
+            }
+            .section-title:hover {
+                opacity: 0.8;
+                transition: opacity 0.2s ease;
+            }
+            .skill-level:disabled {
+                opacity: 0.3 !important;
+                cursor: not-allowed !important;
+            }
+            .skill-level:disabled + .level-label {
+                color: #6c757d !important;
+                opacity: 0.3 !important;
+            }
+            .skill-levels:not(.disabled) .skill-level:not(:disabled) {
+                opacity: 1;
+                cursor: pointer;
+            }
+            .skill-levels:not(.disabled) .skill-level:not(:disabled) + .level-label {
+                color: inherit;
+                opacity: 1;
+            }
+            input[data-attribute] {
+                border: 2px solid #333;
+                font-weight: bold;
+            }
+            input[data-attribute]:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            }
+        `;
+      document.head.appendChild(style);
+
+      // Initialize the extensible components when the page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Character Sheet Extensible Components Initialized");
+
+        // Render dynamic sections using the component system
+        const skillComponent = new SkillSectionComponent();
+
+        // Generate all sections HTML
+        let allSectionsHtml = "";
+        skillSectionsConfig.forEach((config) => {
+          allSectionsHtml += skillComponent.renderSection(config);
+        });
+
+        // Render all JSON sections together in the main layout
+        renderAllSectionsInLayout(skillComponent);
+
+        // Also render all sections in the preview container if it exists
+        const allSectionsContainer = document.getElementById(
+          "all-sections-container"
+        );
+        if (allSectionsContainer) {
+          allSectionsContainer.innerHTML = allSectionsHtml;
+        }
+
+        // Update the Sistema FAQ section (Conhecimento)
+        const sistemaFaqSection = document.querySelector(
+          '[data-section="sistema_faq"] .card-body'
+        );
+        if (sistemaFaqSection && skillSectionsConfig[0]) {
+          // Conhecimento is index 0
+          const conhecimentoConfig = skillSectionsConfig[0];
+          const conhecimentoHtml = `
+            <div class="checkbox-list">
+              ${skillComponent.generateCheckboxes(
+                conhecimentoConfig.skills,
+                conhecimentoConfig.sectionId
+              )}
+            </div>
+          `;
+          sistemaFaqSection.innerHTML = conhecimentoHtml;
+        }
+
+        // Update the Magia section in the top area if it exists
+        const magiaSection = document.querySelector(
+          '[data-section="magia"] .card-body'
+        );
+        if (magiaSection && skillSectionsConfig[7]) {
+          // Magia is index 7
+          const magiaConfig = skillSectionsConfig[7];
+          const magiaHtml = `
+            <div class="checkbox-list">
+              ${skillComponent.generateCheckboxes(
+                magiaConfig.skills,
+                magiaConfig.sectionId
+              )}
+            </div>
+          `;
+          magiaSection.innerHTML = magiaHtml;
+        }
+
+        console.log(
+          "All sections have been dynamically updated with their configurations"
+        );
+        console.log("Generated HTML for all sections:", allSectionsHtml);
+      });
+
+      // Function to render all sections from JSON in the main layout
+      function renderAllSectionsInLayout(skillComponent) {
+        const dynamicContainer = document.getElementById(
+          "dynamic-skill-sections"
+        );
+        const additionalContainer = document.getElementById(
+          "additional-skill-sections"
+        );
+
+        if (!dynamicContainer || !additionalContainer) return;
+
+        // Clear containers
+        dynamicContainer.innerHTML = "";
+        additionalContainer.innerHTML = "";
+
+        // Define which sections go where (customize as needed)
+        const mainSections = [0, 1, 2, 7]; // Conhecimento, Social, Cultura, Magia (indices in skillSectionsConfig)
+        const additionalSections = [3, 4, 5, 6]; // Atletismo, Manufatura, Combate, Sobrevivência
+
+        // Render main sections (Conhecimento, Social, Cultura, Magia)
+        let mainHtml = '<div class="row">';
+        mainSections.forEach((configIndex) => {
+          if (skillSectionsConfig[configIndex]) {
+            const config = skillSectionsConfig[configIndex];
+            const attributeHtml = config.attribute
+              ? `
+              <div class="text-center mb-3">
+                <div class="attribute-circle">
+                  <div class="attribute-label">${config.attribute.label}</div>
+                  <input
+                    type="number"
+                    class="form-control form-control-sm"
+                    style="width: 50px; text-align: center"
+                    value="0"
+                    min="0"
+                    max="3"
+                    data-attribute="${config.attribute.dataAttribute}"
+                    onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
+                  />
+                </div>
+              </div>
+            `
+              : "";
+
+            mainHtml += `
+              <div class="col-md-3">
+                <div class="skill-section" data-section="${config.sectionId}">
+                  ${attributeHtml}
+                  <div class="section-title" onclick="${
+                    config.onClick
+                  }" style="cursor: pointer">
+                    ${config.label}
+                  </div>
+                  <div class="checkbox-list">
+                    ${skillComponent.generateCheckboxes(
+                      config.skills,
+                      config.sectionId
+                    )}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
+        mainHtml += "</div>";
+        dynamicContainer.innerHTML = mainHtml;
+
+        // Render additional sections (Atletismo, Manufatura, Combate, Sobrevivência)
+        let additionalHtml = '<div class="row">';
+        additionalSections.forEach((configIndex) => {
+          if (skillSectionsConfig[configIndex]) {
+            const config = skillSectionsConfig[configIndex];
+            const attributeHtml = config.attribute
+              ? `
+              <div class="text-center mb-3">
+                <div class="attribute-circle">
+                  <div class="attribute-label">${config.attribute.label}</div>
+                  <input
+                    type="number"
+                    class="form-control form-control-sm"
+                    style="width: 50px; text-align: center"
+                    value="0"
+                    min="0"
+                    max="3"
+                    data-attribute="${config.attribute.dataAttribute}"
+                    onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
+                  />
+                </div>
+              </div>
+            `
+              : "";
+
+            additionalHtml += `
+              <div class="col-md-3">
+                <div class="skill-section" data-section="${config.sectionId}">
+                  ${attributeHtml}
+                  <div class="section-title" onclick="${
+                    config.onClick
+                  }" style="cursor: pointer">
+                    ${config.label}
+                  </div>
+                  <div class="checkbox-list">
+                    ${skillComponent.generateCheckboxes(
+                      config.skills,
+                      config.sectionId
+                    )}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
+        additionalHtml += "</div>";
+        additionalContainer.innerHTML = additionalHtml;
+
+        console.log(
+          "All JSON sections rendered in main layout with attributes"
+        );
+
+        // Initialize skill availability based on current attribute values
+        skillSectionsConfig.forEach((config) => {
+          if (config.attribute) {
+            updateSkillAvailability(config.sectionId, 0); // Start with 0 attribute values
+          }
+        });
+      }
+
+      // Validation function for attribute changes
+      function validateAttributeAndSkills(attributeName, sectionId) {
+        const attributeInput = document.querySelector(
+          `input[data-attribute="${attributeName}"]`
+        );
+        if (!attributeInput) return;
+
+        // Ensure attribute value is between 0 and 3
+        let value = parseInt(attributeInput.value);
+        if (isNaN(value) || value < 0) {
+          value = 0;
+          attributeInput.value = 0;
+        } else if (value > 3) {
+          value = 3;
+          attributeInput.value = 3;
+        }
+
+        // Update skill availability based on attribute value
+        updateSkillAvailability(sectionId, value);
+      }
+
+      // Function to toggle skill levels (1, 2, 3)
+      function toggleSkillLevel(checkbox, level) {
+        const sectionId = checkbox.dataset.section;
+        const skillName = checkbox.dataset.skill;
+
+        if (!sectionId) return;
+
+        // Special handling for Resources section (no attribute requirement)
+        if (sectionId === "recursos") {
+          // Get all level checkboxes for this skill
+          const skillContainer = checkbox.closest(".skill-levels");
+          const levelCheckboxes =
+            skillContainer.querySelectorAll(".skill-level");
+
+          if (checkbox.checked) {
+            // If checking a level, also check all lower levels
+            levelCheckboxes.forEach((cb) => {
+              const cbLevel = parseInt(cb.dataset.level);
+              if (cbLevel <= level) {
+                cb.checked = true;
+              }
+            });
+          } else {
+            // If unchecking a level, also uncheck all higher levels
+            levelCheckboxes.forEach((cb) => {
+              const cbLevel = parseInt(cb.dataset.level);
+              if (cbLevel >= level) {
+                cb.checked = false;
+              }
+            });
+          }
+          return true;
+        }
+
+        // Find the corresponding attribute for this section
+        const config = skillSectionsConfig.find(
+          (c) => c.sectionId === sectionId
+        );
+        if (!config || !config.attribute) return;
+
+        const attributeInput = document.querySelector(
+          `input[data-attribute="${config.attribute.dataAttribute}"]`
+        );
+        if (!attributeInput) return;
+
+        const attributeValue = parseInt(attributeInput.value) || 0;
+
+        // Check if the level is allowed based on attribute value
+        if (level > attributeValue) {
+          checkbox.checked = false;
+          alert(
+            `Você precisa ter pelo menos ${level} pontos em ${config.attribute.label} para selecionar o nível ${level} de ${skillName}`
+          );
+          return false;
+        }
+
+        // Get all level checkboxes for this skill
+        const skillContainer = checkbox.closest(".skill-levels");
+        const levelCheckboxes = skillContainer.querySelectorAll(".skill-level");
+
+        if (checkbox.checked) {
+          // If checking a level, also check all lower levels
+          levelCheckboxes.forEach((cb) => {
+            const cbLevel = parseInt(cb.dataset.level);
+            if (cbLevel <= level) {
+              cb.checked = true;
+            }
+          });
+        } else {
+          // If unchecking a level, also uncheck all higher levels
+          levelCheckboxes.forEach((cb) => {
+            const cbLevel = parseInt(cb.dataset.level);
+            if (cbLevel >= level) {
+              cb.checked = false;
+            }
+          });
+        }
+
+        return true;
+      }
+
+      // Function to update skill availability based on attribute value
+      function updateSkillAvailability(sectionId, attributeValue) {
+        const sectionElement = document.querySelector(
+          `[data-section="${sectionId}"]`
+        );
+        if (!sectionElement) return;
+
+        const skillContainers =
+          sectionElement.querySelectorAll(".skill-levels");
+
+        skillContainers.forEach((container) => {
+          const levelCheckboxes = container.querySelectorAll(".skill-level");
+
+          levelCheckboxes.forEach((checkbox) => {
+            const level = parseInt(checkbox.dataset.level);
+
+            if (level > attributeValue) {
+              // Disable and uncheck levels higher than attribute value
+              checkbox.disabled = true;
+              checkbox.checked = false;
+            } else if (attributeValue >= 1) {
+              // Enable levels within attribute value (only if attribute is at least 1)
+              checkbox.disabled = false;
+            } else {
+              // If attribute is 0, disable all levels
+              checkbox.disabled = true;
+              checkbox.checked = false;
+            }
+          });
+
+          // Update visual state of the entire skill container
+          console.log("attributeValue:", attributeValue);
+          if (attributeValue === 0) {
+            container.classList.add("disabled");
+          } else {
+            container.classList.remove("disabled");
+          }
+        });
+      }
+
+      // Function to toggle the all sections preview
+      function toggleAllSectionsPreview() {
+        const previewDiv = document.getElementById("all-sections-preview");
+        if (previewDiv) {
+          if (previewDiv.style.display === "none") {
+            previewDiv.style.display = "block";
+          } else {
+            previewDiv.style.display = "none";
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
