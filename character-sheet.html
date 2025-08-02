@@ -233,11 +233,19 @@
             <div class="row">
               <div class="col-6">
                 <label class="form-label"><strong>HP Total</strong></label>
-                <input type="number" class="form-control large-input" />
+                <input
+                  type="number"
+                  class="form-control large-input"
+                  id="hp-total"
+                />
               </div>
               <div class="col-6">
                 <label class="form-label"><strong>HP Atual</strong></label>
-                <input type="number" class="form-control large-input" />
+                <input
+                  type="number"
+                  class="form-control large-input"
+                  id="hp-current"
+                />
               </div>
             </div>
           </div>
@@ -247,11 +255,19 @@
             <div class="row">
               <div class="col-6">
                 <label class="form-label"><strong>Mana Total</strong></label>
-                <input type="number" class="form-control large-input" />
+                <input
+                  type="number"
+                  class="form-control large-input"
+                  id="mana-total"
+                />
               </div>
               <div class="col-6">
                 <label class="form-label"><strong>Mana Atual</strong></label>
-                <input type="number" class="form-control large-input" />
+                <input
+                  type="number"
+                  class="form-control large-input"
+                  id="mana-current"
+                />
               </div>
             </div>
           </div>
@@ -271,6 +287,7 @@
                 type="number"
                 class="form-control large-input mb-2"
                 placeholder="Valor"
+                id="movement"
               />
             </div>
           </div>
@@ -305,6 +322,17 @@
                     <div class="point-cost">pontos</div>
                   </div>
                 </div>
+              </div>
+              <!-- Clear data button -->
+              <div class="text-center mt-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick="clearSavedCharacterData()"
+                  title="Limpar dados salvos automaticamente"
+                >
+                  🗑️ Limpar Dados Salvos
+                </button>
               </div>
             </div>
           </div>
@@ -708,6 +736,45 @@
         }
       }
 
+      // Function to save character data to localStorage
+      function saveCharacterDataToStorage() {
+        const data = saveCharacterData();
+        try {
+          localStorage.setItem("fac_character_sheet", JSON.stringify(data));
+          console.log("Character data saved to localStorage");
+        } catch (error) {
+          console.error("Error saving to localStorage:", error);
+        }
+      }
+
+      // Function to load character data from localStorage
+      function loadCharacterDataFromStorage() {
+        try {
+          const savedData = localStorage.getItem("fac_character_sheet");
+          if (savedData) {
+            const data = JSON.parse(savedData);
+            loadCharacterData(data);
+            // Recalculate points after loading
+            calculateTotalPoints();
+            console.log("Character data loaded from localStorage");
+            return true;
+          }
+        } catch (error) {
+          console.error("Error loading from localStorage:", error);
+        }
+        return false;
+      }
+
+      // Function to clear saved character data
+      function clearSavedCharacterData() {
+        try {
+          localStorage.removeItem("fac_character_sheet");
+          console.log("Saved character data cleared");
+        } catch (error) {
+          console.error("Error clearing localStorage:", error);
+        }
+      }
+
       // Function to save character data to JSON
       function saveCharacterData() {
         const data = {
@@ -737,20 +804,12 @@
           },
           skills: {},
           hp: {
-            total:
-              document.querySelector('label:contains("HP Total") + input')
-                ?.value || 0,
-            current:
-              document.querySelector('label:contains("HP Atual") + input')
-                ?.value || 0,
+            total: document.getElementById("hp-total")?.value || 0,
+            current: document.getElementById("hp-current")?.value || 0,
           },
           mana: {
-            total:
-              document.querySelector('label:contains("Mana Total") + input')
-                ?.value || 0,
-            current:
-              document.querySelector('label:contains("Mana Atual") + input')
-                ?.value || 0,
+            total: document.getElementById("mana-total")?.value || 0,
+            current: document.getElementById("mana-current")?.value || 0,
           },
         };
 
@@ -770,6 +829,27 @@
 
           data.skills[skillName] = maxLevel;
         });
+
+        // Collect resources and inventory text
+        const resourcesTextarea = document.querySelector(
+          '[data-section="recursos"] textarea'
+        );
+        if (resourcesTextarea) {
+          data.resources = resourcesTextarea.value;
+        }
+
+        const inventoryTextarea = document.querySelector(
+          '.resources-section:not([data-section="recursos"]) textarea'
+        );
+        if (inventoryTextarea) {
+          data.inventory = inventoryTextarea.value;
+        }
+
+        // Collect movement value
+        const movementInput = document.getElementById("movement");
+        if (movementInput) {
+          data.movement = movementInput.value;
+        }
 
         return data;
       }
@@ -812,6 +892,72 @@
             }
           }
         });
+
+        // Load resources
+        if (data.resources !== undefined) {
+          const resourcesTextarea = document.querySelector(
+            '[data-section="recursos"] textarea'
+          );
+          if (resourcesTextarea) {
+            resourcesTextarea.value = data.resources;
+          }
+        }
+
+        // Load inventory
+        if (data.inventory !== undefined) {
+          const inventoryTextarea = document.querySelector(
+            '.resources-section:not([data-section="recursos"]) textarea'
+          );
+          if (inventoryTextarea) {
+            inventoryTextarea.value = data.inventory;
+          }
+        }
+
+        // Load movement
+        if (data.movement !== undefined) {
+          const movementInput = document.getElementById("movement");
+          if (movementInput) {
+            movementInput.value = data.movement;
+          }
+        }
+
+        // Load HP and Mana values
+        if (data.hp) {
+          if (data.hp.total !== undefined) {
+            const hpTotalInput = document.getElementById("hp-total");
+            if (hpTotalInput) hpTotalInput.value = data.hp.total;
+          }
+          if (data.hp.current !== undefined) {
+            const hpCurrentInput = document.getElementById("hp-current");
+            if (hpCurrentInput) hpCurrentInput.value = data.hp.current;
+          }
+        }
+
+        if (data.mana) {
+          if (data.mana.total !== undefined) {
+            const manaTotalInput = document.getElementById("mana-total");
+            if (manaTotalInput) manaTotalInput.value = data.mana.total;
+          }
+          if (data.mana.current !== undefined) {
+            const manaCurrentInput = document.getElementById("mana-current");
+            if (manaCurrentInput) manaCurrentInput.value = data.mana.current;
+          }
+        }
+
+        // Revalidate and recalculate after loading
+        // Update skill availability for all sections based on loaded attribute values
+        skillSectionsConfig.forEach((config) => {
+          if (config.attribute) {
+            const attributeInput = document.querySelector(
+              `input[data-attribute="${config.attribute.dataAttribute}"]`
+            );
+            const attributeValue = attributeInput ? parseInt(attributeInput.value) || 0 : 0;
+            updateSkillAvailability(config.sectionId, attributeValue);
+          }
+        });
+        
+        validateAttributeAndSkills();
+        calculateTotalPoints();
       }
 
       // Add CSS for highlighted sections
@@ -916,11 +1062,46 @@
         console.log(
           "All sections have been dynamically updated with their configurations"
         );
-        console.log("Generated HTML for all sections:", allSectionsHtml);
 
         // Initial point calculation
         calculateTotalPoints();
+
+        // Load any saved character data
+        const hasLoadedData = loadCharacterDataFromStorage();
+        
+        // If no saved data was loaded, initialize skill availability with default values
+        if (!hasLoadedData) {
+          skillSectionsConfig.forEach((config) => {
+            if (config.attribute) {
+              updateSkillAvailability(config.sectionId, 0); // Start with 0 attribute values
+            }
+          });
+        }
+
+        // Set up automatic saving
+        setupAutoSave();
       });
+
+      function setupAutoSave() {
+        // Save whenever any input changes
+        document.addEventListener("input", function (e) {
+          // Debounce saving to avoid too many saves
+          clearTimeout(window.saveTimeout);
+          window.saveTimeout = setTimeout(() => {
+            saveCharacterDataToStorage();
+          }, 500);
+        });
+
+        // Save whenever checkboxes change
+        document.addEventListener("change", function (e) {
+          if (e.target.type === "checkbox") {
+            clearTimeout(window.saveTimeout);
+            window.saveTimeout = setTimeout(() => {
+              saveCharacterDataToStorage();
+            }, 500);
+          }
+        });
+      }
 
       // Function to render all sections from JSON in the main layout
       function renderAllSectionsInLayout(skillComponent) {
@@ -1041,12 +1222,7 @@
           "All JSON sections rendered in main layout with attributes"
         );
 
-        // Initialize skill availability based on current attribute values
-        skillSectionsConfig.forEach((config) => {
-          if (config.attribute) {
-            updateSkillAvailability(config.sectionId, 0); // Start with 0 attribute values
-          }
-        });
+        // Don't initialize skill availability here - wait for data to load first
       }
 
       // Validation function for attribute changes
