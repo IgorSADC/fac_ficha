@@ -240,51 +240,8 @@
       </div>
 
       <!-- HP and Mana Section -->
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <div class="hp-mana-section">
-            <div class="row">
-              <div class="col-6">
-                <label class="form-label"><strong>HP Total</strong></label>
-                <input
-                  type="number"
-                  class="form-control large-input"
-                  id="hp-total"
-                />
-              </div>
-              <div class="col-6">
-                <label class="form-label"><strong>HP Atual</strong></label>
-                <input
-                  type="number"
-                  class="form-control large-input"
-                  id="hp-current"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="hp-mana-section">
-            <div class="row">
-              <div class="col-6">
-                <label class="form-label"><strong>Mana Total</strong></label>
-                <input
-                  type="number"
-                  class="form-control large-input"
-                  id="mana-total"
-                />
-              </div>
-              <div class="col-6">
-                <label class="form-label"><strong>Mana Atual</strong></label>
-                <input
-                  type="number"
-                  class="form-control large-input"
-                  id="mana-current"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="resource-sections-container">
+        <!-- HP and Mana sections will be rendered here from JSON -->
       </div>
 
       <!-- Bottom Section - Movimento and Point Calculator -->
@@ -581,6 +538,221 @@
         }
       }
 
+      // Resource/Stat Component for HP, Mana, etc.
+      class ResourceComponent {
+        constructor() {}
+
+        // Render a resource section from JSON configuration
+        renderResourceSection(config) {
+          const diceSelector = config.diceType
+            ? `
+            <div class="col-12 mb-2">
+              <div class="d-flex align-items-center justify-content-center">
+                <label class="form-label me-2 mb-0"><strong>Dado:</strong></label>
+                <select class="form-select form-select-sm dice-selector" style="width: auto;" id="${
+                  config.diceSelectId
+                }" onchange="onDiceTypeChange('${config.resourceName}')">
+                  <option value="d4" ${
+                    config.diceType === "d4" ? "selected" : ""
+                  }>d4</option>
+                  <option value="d6" ${
+                    config.diceType === "d6" ? "selected" : ""
+                  }>d6</option>
+                  <option value="d8" ${
+                    config.diceType === "d8" ? "selected" : ""
+                  }>d8</option>
+                  <option value="d10" ${
+                    config.diceType === "d10" ? "selected" : ""
+                  }>d10</option>
+                  <option value="d12" ${
+                    config.diceType === "d12" ? "selected" : ""
+                  }>d12</option>
+                </select>
+                <button class="btn btn-sm btn-outline-warning ms-2" onclick="rollResourceDice('${
+                  config.resourceName
+                }', '${
+                config.diceSelectId
+              }')" title="Substituir rolls automáticos por rolls manuais">
+                  🎲 Manual
+                </button>
+              </div>
+            </div>
+          `
+            : "";
+
+          const resourceHtml = `
+            <div class="col-md-${config.columnSize || 6}">
+              <div class="hp-mana-section">
+                <div class="row">
+                  ${diceSelector}
+                  <div class="col-4">
+                    <label class="form-label"><strong>Base ${
+                      config.resourceName
+                    }</strong></label>
+                    <input
+                      type="number"
+                      class="form-control large-input"
+                      id="${config.baseId}"
+                      placeholder="${config.basePlaceholder || "0"}"
+                      readonly
+                      style="background-color: #f8f9fa; cursor: not-allowed;"
+                    />
+                    <button class="btn btn-xs btn-outline-info mt-1" style="font-size: 10px; padding: 2px 6px;" onclick="showResourceRollHistory('${
+                      config.resourceName
+                    }')" title="Ver histórico de rolls">
+                      📋 Histórico
+                    </button>
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label"><strong>Extra ${
+                      config.resourceName
+                    }</strong></label>
+                    <input
+                      type="number"
+                      class="form-control large-input"
+                      id="${config.extraId}"
+                      placeholder="${config.extraPlaceholder || "0"}"
+                      onchange="calculateResourceTotal('${
+                        config.resourceName
+                      }')"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <label class="form-label"><strong>${
+                      config.totalLabel
+                    }</strong></label>
+                    <input
+                      type="number"
+                      class="form-control large-input"
+                      id="${config.totalId}"
+                      placeholder="${config.totalPlaceholder || "0"}"
+                      readonly
+                      style="background-color: #f8f9fa; cursor: not-allowed;"
+                    />
+                  </div>
+                  <div class="col-12 mt-2">
+                    <label class="form-label"><strong>${
+                      config.currentLabel
+                    }</strong></label>
+                    <input
+                      type="number"
+                      class="form-control large-input"
+                      id="${config.currentId}"
+                      placeholder="${config.currentPlaceholder || "0"}"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          return resourceHtml;
+        }
+
+        // Render multiple resource sections from JSON array
+        renderFromJson(resourcesConfig, containerId) {
+          const container = document.getElementById(containerId);
+          if (!container) return "";
+
+          let html = '<div class="row mb-3">';
+          resourcesConfig.forEach((config) => {
+            html += this.renderResourceSection(config);
+          });
+          html += "</div>";
+
+          container.innerHTML = html;
+          return html;
+        }
+      }
+
+      // Function to update dice selector availability based on character level
+      function updateDiceSelectorAvailability() {
+        const level =
+          parseInt(document.getElementById("character-level")?.textContent) ||
+          0;
+        const diceSelectors = document.querySelectorAll(".dice-selector");
+
+        diceSelectors.forEach((selector) => {
+          if (level > 0) {
+            // Disable selector and gray it out for levels above 0
+            selector.disabled = true;
+            selector.style.opacity = "0.5";
+            selector.style.cursor = "not-allowed";
+          } else {
+            // Enable selector for level 0 (character creation)
+            selector.disabled = false;
+            selector.style.opacity = "1";
+            selector.style.cursor = "pointer";
+          }
+        });
+      }
+
+      // Function to calculate resource total (Base + Extra = Total)
+      function calculateResourceTotal(resourceName) {
+        const config = resourceSectionsConfig.find(
+          (c) => c.resourceName === resourceName
+        );
+        if (!config) return;
+
+        const baseInput = document.getElementById(config.baseId);
+        const extraInput = document.getElementById(config.extraId);
+        const totalInput = document.getElementById(config.totalId);
+
+        if (baseInput && extraInput && totalInput) {
+          const baseValue = parseInt(baseInput.value) || 0;
+          const extraValue = parseInt(extraInput.value) || 0;
+          const total = baseValue + extraValue;
+
+          totalInput.value = total;
+
+          // Trigger auto-save after calculation
+          clearTimeout(window.saveTimeout);
+          window.saveTimeout = setTimeout(() => {
+            saveCharacterDataToStorage();
+          }, 500);
+        }
+      }
+
+      // Configuration JSON for resource sections
+      const resourceSectionsConfig = [
+        {
+          resourceName: "HP",
+          totalLabel: "HP Total",
+          currentLabel: "HP Atual",
+          baseId: "hp-base",
+          extraId: "hp-extra",
+          totalId: "hp-total",
+          currentId: "hp-current",
+          columnSize: 6,
+          diceType: "d6",
+          diceSelectId: "hp-dice-select",
+        },
+        {
+          resourceName: "Mana",
+          totalLabel: "Mana Total",
+          currentLabel: "Mana Atual",
+          baseId: "mana-base",
+          extraId: "mana-extra",
+          totalId: "mana-total",
+          currentId: "mana-current",
+          columnSize: 6,
+          diceType: "d6",
+          diceSelectId: "mana-dice-select",
+        },
+        // You can easily add more resource types here:
+        // {
+        //   resourceName: "Stamina",
+        //   totalLabel: "Stamina Total",
+        //   currentLabel: "Stamina Atual",
+        //   baseId: "stamina-base",
+        //   extraId: "stamina-extra",
+        //   totalId: "stamina-total",
+        //   currentId: "stamina-current",
+        //   columnSize: 6,
+        //   diceType: "d8",
+        //   diceSelectId: "stamina-dice-select"
+        // }
+      ];
+
       // Configuration JSON for skill sections
       const skillSectionsConfig = [
         // Conhecimento
@@ -818,8 +990,403 @@
         console.log(result);
       }
 
+      // Roll function for resource dice (HP, Mana, etc.)
+      function rollResourceDice(resourceName, diceSelectId) {
+        const diceSelect = document.getElementById(diceSelectId);
+        if (!diceSelect) {
+          alert(`Seletor de dado para ${resourceName} não encontrado!`);
+          return;
+        }
+
+        const level =
+          parseInt(document.getElementById("character-level")?.textContent) ||
+          0;
+        const diceType = diceSelect.value;
+        const diceSides = parseInt(diceType.substring(1)); // Remove 'd' and get number
+
+        if (level === 0) {
+          // Level 0: Set base to maximum dice value
+          const maxValue = diceSides;
+          initializeResourceBase(resourceName, maxValue, diceType);
+
+          const result = `🎲 ${resourceName} (Nível 0): Base inicializada com valor máximo ${maxValue}`;
+          alert(result);
+          console.log(result);
+        } else {
+          // Level 1+: Show confirmation and clear automatic history
+          const confirmMessage = `Isso irá substituir todos os rolls automáticos com rolls manuais.\n\nDeseja continuar e rolar manualmente para ${resourceName}?`;
+          if (!confirm(confirmMessage)) {
+            return;
+          }
+
+          // Clear existing history and start fresh with manual rolls
+          clearResourceHistoryAndStartManual(resourceName, diceType, level);
+        }
+      }
+
+      // Function to clear automatic history and start manual rolling
+      function clearResourceHistoryAndStartManual(
+        resourceName,
+        diceType,
+        currentLevel
+      ) {
+        const config = resourceSectionsConfig.find(
+          (c) => c.resourceName === resourceName
+        );
+        if (!config) return;
+
+        // Start fresh history - keep only level 0 if it exists
+        const existingHistory = getResourceRollHistory(resourceName);
+        const level0Entry = existingHistory.find((entry) => entry.level === 0);
+
+        let newHistory = [];
+        let baseValue = 0;
+
+        if (level0Entry) {
+          // Keep level 0 initialization
+          newHistory.push(level0Entry);
+          baseValue = level0Entry.roll;
+        } else {
+          // Create level 0 entry with max dice value
+          const diceSides = parseInt(diceType.substring(1));
+          const maxValue = diceSides;
+          newHistory.push({
+            level: 0,
+            roll: maxValue,
+            diceType: diceType,
+            description: `Nível 0: Valor máximo do ${diceType}`,
+          });
+          baseValue = maxValue;
+        }
+
+        // Now roll manually for each level from 1 to current level
+        for (let level = 1; level <= currentLevel; level++) {
+          const diceSides = parseInt(diceType.substring(1));
+          const roll = Math.floor(Math.random() * diceSides) + 1;
+          baseValue += roll;
+
+          newHistory.push({
+            level: level,
+            roll: roll,
+            diceType: diceType,
+            description: `Nível ${level}: Rolou ${roll} no ${diceType} (manual)`,
+          });
+        }
+
+        // Update the base input
+        const baseInput = document.getElementById(config.baseId);
+        if (baseInput) {
+          baseInput.value = baseValue;
+        }
+
+        // Save the new manual history
+        saveResourceRollHistory(resourceName, newHistory);
+
+        // Show summary of manual rolls
+        showManualRollSummary(
+          resourceName,
+          newHistory.filter((entry) => entry.level > 0)
+        );
+
+        // Recalculate total
+        calculateResourceTotal(resourceName);
+      }
+
+      // Function to show summary of manual rolls
+      function showManualRollSummary(resourceName, manualRolls) {
+        if (manualRolls.length === 0) return;
+
+        let summary = `🎲 Rolls Manuais - ${resourceName}:\n\n`;
+        let totalGained = 0;
+
+        manualRolls.forEach((roll) => {
+          summary += `Nível ${roll.level}: Rolou ${roll.roll} no ${roll.diceType}\n`;
+          totalGained += roll.roll;
+        });
+
+        summary += `\nTotal ganho nos rolls: +${totalGained}`;
+        summary += `\nHistórico automático foi substituído pelos rolls manuais.`;
+
+        alert(summary);
+      }
+
+      // Function to initialize base resource at level 0
+      function initializeResourceBase(resourceName, baseValue, diceType) {
+        const config = resourceSectionsConfig.find(
+          (c) => c.resourceName === resourceName
+        );
+        if (!config) return;
+
+        const baseInput = document.getElementById(config.baseId);
+        if (baseInput) {
+          baseInput.value = baseValue;
+        }
+
+        // Initialize roll history
+        const rollHistory = [
+          {
+            level: 0,
+            roll: baseValue,
+            diceType: diceType,
+            description: `Nível 0: Valor máximo do ${diceType}`,
+          },
+        ];
+
+        // Save roll history to resource data
+        saveResourceRollHistory(resourceName, rollHistory);
+
+        // Recalculate total
+        calculateResourceTotal(resourceName);
+      }
+
+      // Function to roll dice and add to resource base
+      function rollAndAddToResource(resourceName, diceType, level) {
+        const config = resourceSectionsConfig.find(
+          (c) => c.resourceName === resourceName
+        );
+        if (!config) return;
+
+        const baseInput = document.getElementById(config.baseId);
+        if (!baseInput) return;
+
+        const diceSides = parseInt(diceType.substring(1));
+        const roll = Math.floor(Math.random() * diceSides) + 1;
+        const currentBase = parseInt(baseInput.value) || 0;
+        const newBase = currentBase + roll;
+
+        baseInput.value = newBase;
+
+        // Get existing roll history and add new roll
+        const existingHistory = getResourceRollHistory(resourceName);
+        existingHistory.push({
+          level: level,
+          roll: roll,
+          diceType: diceType,
+          description: `Nível ${level}: Rolou ${roll} no ${diceType}`,
+        });
+
+        saveResourceRollHistory(resourceName, existingHistory);
+
+        const result = `🎲 ${resourceName} (Nível ${level}): Rolou ${roll} no ${diceType}. Base: ${currentBase} + ${roll} = ${newBase}`;
+        alert(result);
+        console.log(result);
+
+        // Recalculate total
+        calculateResourceTotal(resourceName);
+      }
+
+      // Function to save resource roll history
+      function saveResourceRollHistory(resourceName, rollHistory) {
+        const key = `${resourceName.toLowerCase()}_roll_history`;
+        try {
+          localStorage.setItem(key, JSON.stringify(rollHistory));
+        } catch (error) {
+          console.error(
+            `Error saving roll history for ${resourceName}:`,
+            error
+          );
+        }
+      }
+
+      // Function to get resource roll history
+      function getResourceRollHistory(resourceName) {
+        const key = `${resourceName.toLowerCase()}_roll_history`;
+        try {
+          const history = localStorage.getItem(key);
+          return history ? JSON.parse(history) : [];
+        } catch (error) {
+          console.error(
+            `Error loading roll history for ${resourceName}:`,
+            error
+          );
+          return [];
+        }
+      }
+
+      // Function to show resource roll history
+      function showResourceRollHistory(resourceName) {
+        const history = getResourceRollHistory(resourceName);
+
+        if (history.length === 0) {
+          alert(`Nenhum histórico de rolls encontrado para ${resourceName}.`);
+          return;
+        }
+
+        let historyText = `Histórico de Rolls - ${resourceName}:\n\n`;
+        let total = 0;
+
+        history.forEach((entry, index) => {
+          historyText += `${entry.description}\n`;
+          total = index === 0 ? entry.roll : total + entry.roll;
+        });
+
+        historyText += `\nTotal Base: ${total}`;
+
+        alert(historyText);
+      }
+
+      // Function to show summary of automatic rolls
+      function showAutoRollSummary(levelsRolled) {
+        if (levelsRolled.length === 0) return;
+
+        let summary = `🎲 Rolls Automáticos - Níveis ${levelsRolled.join(
+          ", "
+        )}:\n\n`;
+
+        resourceSectionsConfig.forEach((config) => {
+          const history = getResourceRollHistory(config.resourceName);
+          const levelRolls = history.filter((entry) =>
+            levelsRolled.includes(entry.level)
+          );
+
+          if (levelRolls.length > 0) {
+            summary += `${config.resourceName}:\n`;
+            levelRolls.forEach((roll) => {
+              summary += `  Nível ${roll.level}: ${roll.roll} no ${roll.diceType}\n`;
+            });
+
+            // Calculate total gained
+            const totalGained = levelRolls.reduce(
+              (sum, roll) => sum + roll.roll,
+              0
+            );
+            summary += `  Total ganho: +${totalGained}\n\n`;
+          }
+        });
+
+        summary += `Clique no botão "📋 Histórico" para ver todos os rolls detalhados.`;
+        alert(summary);
+      }
+
+      // Function called when dice type changes
+      function onDiceTypeChange(resourceName) {
+        // Always trigger resource recalculation when dice type changes, clearing history
+        updateResourceBaseValues(true); // true indicates dice type changed
+
+        // Always trigger auto-save when dice type changes
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(() => {
+          saveCharacterDataToStorage();
+        }, 500);
+      }
+
+      // Single comprehensive function to handle all resource base calculations
+      function updateResourceBaseValues(diceTypeChanged = false) {
+        const currentLevel =
+          parseInt(document.getElementById("character-level")?.textContent) ||
+          0;
+
+        console.log(
+          `Updating resource base values for level ${currentLevel}${
+            diceTypeChanged ? " (dice type changed)" : ""
+          }`
+        );
+
+        resourceSectionsConfig.forEach((config) => {
+          const diceSelect = document.getElementById(config.diceSelectId);
+          const baseInput = document.getElementById(config.baseId);
+
+          if (!diceSelect || !baseInput) return;
+
+          const diceType = diceSelect.value;
+          const diceSides = parseInt(diceType.substring(1));
+
+          // Get existing roll history
+          let rollHistory = getResourceRollHistory(config.resourceName);
+
+          // If dice type changed, check if we need to clear history
+          if (diceTypeChanged && rollHistory.length > 0) {
+            // Check if the existing history has different dice types
+            const existingDiceType = rollHistory[0]?.diceType;
+            if (existingDiceType && existingDiceType !== diceType) {
+              console.log(
+                `Dice type changed from ${existingDiceType} to ${diceType} for ${config.resourceName}, clearing history`
+              );
+              rollHistory = []; // Clear the history
+              localStorage.setItem(
+                `${config.resourceName.toLowerCase()}_roll_history`,
+                JSON.stringify(rollHistory)
+              );
+            }
+          }
+
+          const existingLevels = new Set(
+            rollHistory.map((entry) => entry.level)
+          );
+
+          // Ensure level 0 exists in history
+          if (!existingLevels.has(0)) {
+            const maxValue = diceSides;
+            rollHistory.unshift({
+              level: 0,
+              roll: maxValue,
+              diceType: diceType,
+              description: `Nível 0: Valor máximo do ${diceType}`,
+            });
+            existingLevels.add(0);
+            console.log(
+              `Auto-initialized ${config.resourceName} level 0 with ${maxValue}`
+            );
+          }
+
+          // Find and roll for missing levels from 1 to currentLevel
+          const missingLevels = [];
+          for (let level = 1; level <= currentLevel; level++) {
+            if (!existingLevels.has(level)) {
+              missingLevels.push(level);
+            }
+          }
+
+          // Roll for missing levels
+          missingLevels.forEach((level) => {
+            const roll = Math.floor(Math.random() * diceSides) + 1;
+            rollHistory.push({
+              level: level,
+              roll: roll,
+              diceType: diceType,
+              description: `Nível ${level}: Rolou ${roll} no ${diceType} (automático)`,
+            });
+            console.log(
+              `🎲 ${config.resourceName} (Nível ${level}): Rolou ${roll} no ${diceType}`
+            );
+          });
+
+          // Sort history by level
+          rollHistory.sort((a, b) => a.level - b.level);
+
+          // Calculate base value up to current level
+          let calculatedBase = 0;
+          rollHistory.forEach((entry) => {
+            if (entry.level <= currentLevel) {
+              if (entry.level === 0) {
+                calculatedBase = entry.roll; // Level 0 sets the base
+              } else {
+                calculatedBase += entry.roll; // Subsequent levels add to base
+              }
+            }
+          });
+
+          // Update the base input
+          baseInput.value = calculatedBase;
+          console.log(
+            `Updated ${config.resourceName} base to ${calculatedBase} (up to level ${currentLevel})`
+          );
+
+          // Save updated roll history (only if we added new rolls)
+          if (missingLevels.length > 0) {
+            saveResourceRollHistory(config.resourceName, rollHistory);
+          }
+
+          // Recalculate total after base update
+          calculateResourceTotal(config.resourceName);
+        });
+      }
+
       // Level editing functions
       function editLevel(element) {
+        // Store current level before editing for comparison
+        element.dataset.previousLevel = element.textContent;
+
         element.focus();
         // Select all text when clicking to edit
         if (window.getSelection && document.createRange) {
@@ -832,13 +1399,25 @@
       }
 
       function saveLevel(element) {
+        const previousLevel = parseInt(element.dataset.previousLevel) || 0;
         let level = parseInt(element.textContent) || 0;
         if (level < 0) level = 0;
         if (level > 20) level = 20; // Set a reasonable max level
         element.textContent = level;
 
+        // Store the new level for next comparison
+        element.dataset.previousLevel = level;
+
+        console.log(`Level changed from ${previousLevel} to ${level}`);
+
         // Update available points when level changes
         updateMaxPointsOnLevelUp();
+
+        // Update dice selector availability based on new level
+        updateDiceSelectorAvailability();
+
+        // Update all resource base values for the new level
+        updateResourceBaseValues(false); // false indicates level change, not dice type change
 
         // Trigger auto-save
         clearTimeout(window.saveTimeout);
@@ -1056,12 +1635,21 @@
           },
           skills: {},
           hp: {
+            base: document.getElementById("hp-base")?.value || 0,
+            extra: document.getElementById("hp-extra")?.value || 0,
             total: document.getElementById("hp-total")?.value || 0,
             current: document.getElementById("hp-current")?.value || 0,
+            diceType: document.getElementById("hp-dice-select")?.value || "d6",
+            rollHistory: getResourceRollHistory("HP"),
           },
           mana: {
+            base: document.getElementById("mana-base")?.value || 0,
+            extra: document.getElementById("mana-extra")?.value || 0,
             total: document.getElementById("mana-total")?.value || 0,
             current: document.getElementById("mana-current")?.value || 0,
+            diceType:
+              document.getElementById("mana-dice-select")?.value || "d6",
+            rollHistory: getResourceRollHistory("Mana"),
           },
         };
 
@@ -1121,7 +1709,12 @@
 
         // Load character level
         if (data.level !== undefined) {
-          document.getElementById("character-level").textContent = data.level;
+          const levelElement = document.getElementById("character-level");
+          if (levelElement) {
+            levelElement.textContent = data.level;
+            // Initialize previous level for future comparisons
+            levelElement.dataset.previousLevel = data.level;
+          }
         }
 
         // Load attributes
@@ -1180,6 +1773,14 @@
 
         // Load HP and Mana values
         if (data.hp) {
+          if (data.hp.base !== undefined) {
+            const hpBaseInput = document.getElementById("hp-base");
+            if (hpBaseInput) hpBaseInput.value = data.hp.base;
+          }
+          if (data.hp.extra !== undefined) {
+            const hpExtraInput = document.getElementById("hp-extra");
+            if (hpExtraInput) hpExtraInput.value = data.hp.extra;
+          }
           if (data.hp.total !== undefined) {
             const hpTotalInput = document.getElementById("hp-total");
             if (hpTotalInput) hpTotalInput.value = data.hp.total;
@@ -1188,9 +1789,24 @@
             const hpCurrentInput = document.getElementById("hp-current");
             if (hpCurrentInput) hpCurrentInput.value = data.hp.current;
           }
+          if (data.hp.diceType !== undefined) {
+            const hpDiceSelect = document.getElementById("hp-dice-select");
+            if (hpDiceSelect) hpDiceSelect.value = data.hp.diceType;
+          }
+          if (data.hp.rollHistory !== undefined) {
+            saveResourceRollHistory("HP", data.hp.rollHistory);
+          }
         }
 
         if (data.mana) {
+          if (data.mana.base !== undefined) {
+            const manaBaseInput = document.getElementById("mana-base");
+            if (manaBaseInput) manaBaseInput.value = data.mana.base;
+          }
+          if (data.mana.extra !== undefined) {
+            const manaExtraInput = document.getElementById("mana-extra");
+            if (manaExtraInput) manaExtraInput.value = data.mana.extra;
+          }
           if (data.mana.total !== undefined) {
             const manaTotalInput = document.getElementById("mana-total");
             if (manaTotalInput) manaTotalInput.value = data.mana.total;
@@ -1198,6 +1814,13 @@
           if (data.mana.current !== undefined) {
             const manaCurrentInput = document.getElementById("mana-current");
             if (manaCurrentInput) manaCurrentInput.value = data.mana.current;
+          }
+          if (data.mana.diceType !== undefined) {
+            const manaDiceSelect = document.getElementById("mana-dice-select");
+            if (manaDiceSelect) manaDiceSelect.value = data.mana.diceType;
+          }
+          if (data.mana.rollHistory !== undefined) {
+            saveResourceRollHistory("Mana", data.mana.rollHistory);
           }
         }
 
@@ -1219,6 +1842,14 @@
         calculateAvailablePoints();
         validateAttributeAndSkills();
         calculateTotalPoints();
+
+        // Recalculate resource totals after loading
+        resourceSectionsConfig.forEach((config) => {
+          calculateResourceTotal(config.resourceName);
+        });
+
+        // Update dice selector availability based on loaded level
+        updateDiceSelectorAvailability();
       }
 
       // Add CSS for highlighted sections
@@ -1266,6 +1897,13 @@
 
         // Render dynamic sections using the component system
         const skillComponent = new SkillSectionComponent();
+        const resourceComponent = new ResourceComponent();
+
+        // Render resource sections (HP, Mana, etc.)
+        resourceComponent.renderFromJson(
+          resourceSectionsConfig,
+          "resource-sections-container"
+        );
 
         // Generate all sections HTML
         let allSectionsHtml = "";
@@ -1340,10 +1978,23 @@
               updateSkillAvailability(config.sectionId, 0); // Start with 0 attribute values
             }
           });
+
+          // Initialize previous level for new characters
+          const levelElement = document.getElementById("character-level");
+          if (levelElement) {
+            levelElement.dataset.previousLevel =
+              levelElement.textContent || "0";
+          }
         }
 
         // Set up automatic saving
         setupAutoSave();
+
+        // Update dice selector availability on initial load
+        updateDiceSelectorAvailability();
+
+        // Recalculate base resources after everything is loaded
+        updateResourceBaseValues(false); // false indicates initialization, not dice type change
       });
 
       function setupAutoSave() {
