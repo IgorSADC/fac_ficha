@@ -195,6 +195,105 @@
         background-color: #fff3cd !important;
         border-color: #ffc107 !important;
       }
+
+      /* Magic Creation Section Styles */
+      .magic-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: #fff;
+        transition: all 0.2s ease;
+      }
+
+      .magic-item:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+      }
+
+      .magic-name {
+        font-weight: bold;
+        color: #333;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .magic-component {
+        font-size: 12px;
+        color: #666;
+        background: #f8f9fa;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .magic-cost {
+        font-size: 12px;
+        color: #007bff;
+        font-weight: bold;
+      }
+
+      .magic-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4px;
+      }
+
+      .magic-remove-btn {
+        float: right;
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+
+      .magic-remove-btn:hover {
+        color: #c82333;
+      }
+
+      #magic-list-container {
+        background: #f8f9fa;
+      }
+
+      #magic-list-container:empty::before {
+        content: "Nenhuma magia adicionada ainda.";
+        color: #6c757d;
+        font-style: italic;
+        display: block;
+        text-align: center;
+        padding: 20px;
+      }
+
+      /* Magic Components Selection Styles */
+      #magic-components-container {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+      }
+
+      .magic-component-select {
+        margin-bottom: 10px;
+      }
+
+      .form-label {
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .form-text {
+        font-size: 12px;
+        margin-top: 3px;
+      }
+
+      .form-check-label strong {
+        color: #495057;
+      }
     </style>
   </head>
   <body class="bg-light">
@@ -439,6 +538,106 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Magic Creation Section -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="resources-section" id="magic-creation-section">
+            <div class="section-header">✨ Criação de Magias</div>
+            <div class="p-3">
+              <div class="row">
+                <!-- Magic Creation Form -->
+                <div class="col-md-6">
+                  <h6 class="mb-3">Adicionar Nova Magia</h6>
+                  <div class="mb-3">
+                    <label for="magic-name-input" class="form-label"
+                      >Nome da Magia</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="magic-name-input"
+                      placeholder="Digite o nome da magia..."
+                      onkeypress="handleMagicInputKeypress(event)"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Componentes da Magia</label>
+                    <div id="magic-components-container" class="p-2">
+                      <!-- Component select fields will be populated by JavaScript -->
+                    </div>
+                    <small class="text-muted"
+                      >Configure os componentes para a magia. Campos marcados
+                      com * são obrigatórios.</small
+                    >
+                    >
+                  </div>
+                  <div class="mb-3">
+                    <label for="magic-cost-input" class="form-label"
+                      >Custo Base</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="magic-cost-input"
+                      placeholder="1"
+                      value="1"
+                      min="1"
+                      onkeypress="handleMagicInputKeypress(event)"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="addMagicSpell()"
+                  >
+                    ➕ Adicionar Magia
+                  </button>
+                </div>
+
+                <!-- Magic List Display -->
+                <div class="col-md-6">
+                  <h6 class="mb-3">Magias Conhecidas</h6>
+                  <div
+                    id="magic-list-container"
+                    class="border rounded p-2"
+                    style="
+                      min-height: 200px;
+                      max-height: 300px;
+                      overflow-y: auto;
+                    "
+                  >
+                    <p class="text-muted text-center" id="no-magic-message">
+                      Nenhuma magia adicionada ainda.
+                    </p>
+                  </div>
+                  <div
+                    class="mt-2 d-flex justify-content-between align-items-center"
+                  >
+                    <small class="text-muted"
+                      >Total de magias: <span id="magic-count">0</span></small
+                    >
+                    <small class="text-info"
+                      ><strong
+                        >Custo Total:
+                        <span id="magic-total-cost">0</span></strong
+                      ></small
+                    >
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      onclick="clearAllMagics()"
+                      title="Remover todas as magias"
+                    >
+                      🗑️ Limpar Todas
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1597,7 +1796,22 @@
       function clearSavedCharacterData() {
         try {
           localStorage.removeItem("fac_character_sheet");
-          console.log("Saved character data cleared");
+          localStorage.removeItem("fac_character_magics");
+          // Clear roll histories for all resources
+          resourceSectionsConfig.forEach((config) => {
+            localStorage.removeItem(
+              `${config.resourceName.toLowerCase()}_roll_history`
+            );
+          });
+
+          // Clear magic manager
+          if (magicManager) {
+            magicManager.magics = [];
+            magicManager.renderMagicList();
+          }
+
+          console.log("All saved character data cleared");
+          alert("Todos os dados salvos foram removidos.");
         } catch (error) {
           console.error("Error clearing localStorage:", error);
         }
@@ -1689,6 +1903,11 @@
         const movementInput = document.getElementById("movement");
         if (movementInput) {
           data.movement = movementInput.value;
+        }
+
+        // Collect magics data
+        if (magicManager) {
+          data.magics = magicManager.getMagicsData();
         }
 
         return data;
@@ -1848,6 +2067,11 @@
           calculateResourceTotal(config.resourceName);
         });
 
+        // Load magics data
+        if (data.magics && magicManager) {
+          magicManager.loadMagicsData(data.magics);
+        }
+
         // Update dice selector availability based on loaded level
         updateDiceSelectorAvailability();
       }
@@ -1894,6 +2118,9 @@
       // Initialize the extensible components when the page loads
       document.addEventListener("DOMContentLoaded", function () {
         console.log("Character Sheet Extensible Components Initialized");
+
+        // Initialize magic manager
+        magicManager = new MagicManager();
 
         // Render dynamic sections using the component system
         const skillComponent = new SkillSectionComponent();
@@ -1995,6 +2222,12 @@
 
         // Recalculate base resources after everything is loaded
         updateResourceBaseValues(false); // false indicates initialization, not dice type change
+
+        // Render initial magic list
+        if (magicManager) {
+          magicManager.renderComponentOptions();
+          magicManager.renderMagicList();
+        }
       });
 
       function setupAutoSave() {
@@ -2399,6 +2632,605 @@
             skillContainer.classList.remove("skill-exceeded");
           }
         });
+      }
+
+      // Magic System Classes and Functions
+
+      // MagicComponentField class to represent different component field types
+      class MagicComponentField {
+        constructor(id, title, description, options = [], required = false) {
+          this.id = id;
+          this.title = title;
+          this.description = description;
+          this.options = options; // Array of {id, name, costModifier}
+          this.required = required;
+        }
+
+        // Create MagicComponentField from JSON
+        static fromJSON(data) {
+          return new MagicComponentField(
+            data.id,
+            data.title,
+            data.description,
+            data.options || [],
+            data.required || false
+          );
+        }
+
+        // Convert to JSON for storage
+        toJSON() {
+          return {
+            id: this.id,
+            title: this.title,
+            description: this.description,
+            options: this.options,
+            required: this.required,
+          };
+        }
+      }
+
+      // Magic class to represent individual spells
+      class Magic {
+        constructor(name, componentSelections = {}, baseCost = 1) {
+          this.id = Date.now() + Math.random(); // Simple unique ID
+          this.name = name;
+          this.componentSelections = componentSelections; // Object with fieldId: optionId
+          this.baseCost = baseCost;
+          this.createdAt = new Date();
+        }
+
+        // Calculate final cost based on component selections
+        getFinalCost(componentFields) {
+          let totalModifier = 1.0;
+
+          // Apply modifiers from each field selection
+          Object.keys(this.componentSelections).forEach((fieldId) => {
+            const optionId = this.componentSelections[fieldId];
+            if (!optionId) return;
+
+            const field = componentFields.find((f) => f.id === fieldId);
+            if (!field) return;
+
+            const option = field.options.find((o) => o.id === optionId);
+            if (option && option.costModifier) {
+              totalModifier *= option.costModifier;
+            }
+          });
+
+          return Math.ceil(this.baseCost * totalModifier);
+        }
+
+        // Get component selections as display string
+        getComponentSelectionsDisplay(componentFields) {
+          const selections = [];
+
+          Object.keys(this.componentSelections).forEach((fieldId) => {
+            const optionId = this.componentSelections[fieldId];
+            if (!optionId) return;
+
+            const field = componentFields.find((f) => f.id === fieldId);
+            if (!field) return;
+
+            const option = field.options.find((o) => o.id === optionId);
+            if (option) {
+              selections.push(`${field.title}: ${option.name}`);
+            }
+          });
+
+          return selections.length > 0 ? selections.join(" | ") : "Nenhum";
+        }
+
+        // Convert to JSON for storage
+        toJSON() {
+          return {
+            id: this.id,
+            name: this.name,
+            componentSelections: this.componentSelections,
+            baseCost: this.baseCost,
+            createdAt: this.createdAt.toISOString(),
+          };
+        }
+
+        // Create Magic from JSON data
+        static fromJSON(data) {
+          const magic = new Magic(
+            data.name,
+            data.componentSelections || {},
+            data.baseCost || 1
+          );
+          magic.id = data.id;
+          magic.createdAt = new Date(data.createdAt);
+          return magic;
+        }
+      }
+
+      // Magic Component class to handle magic list management and rendering
+      class MagicManager {
+        constructor() {
+          this.magics = [];
+          this.componentFields = [];
+          this.initializeDefaultComponentFields();
+          this.loadMagicsFromStorage();
+        }
+
+        // Initialize default component fields from JSON configuration
+        initializeDefaultComponentFields() {
+          const defaultComponentFieldsConfig = [
+            {
+              id: "duration",
+              title: "Duração",
+              description: "Tempo de duração do efeito",
+              required: true,
+              options: [
+                { id: "instant", name: "Instantânea", costModifier: 1.0 },
+                { id: "short", name: "Curta", costModifier: 2.0 },
+                { id: "medium", name: "Média", costModifier: 2.2 },
+                { id: "long", name: "Longa", costModifier: 2.4 },
+                { id: "permanent", name: "Permanente", costModifier: 4.0 },
+                { id: "6_hours", name: "Até 6 horas", costModifier: 4.5 },
+                { id: "1_day", name: "Até 1 dia", costModifier: 6.0 },
+                { id: "7_days", name: "Até 7 dias", costModifier: 7.0 },
+                { id: "14_days", name: "Até 14 dias", costModifier: 9.0 },
+                { id: "1_month", name: "Até 1 mês", costModifier: 10.0 },
+              ],
+            },
+            {
+              id: "target",
+              title: "Alvo",
+              description: "Alvos da magia",
+              required: false,
+              options: [
+                { id: "1_target", name: "1 alvo", costModifier: 1.0 },
+                { id: "3_targets", name: "Até 3 alvos", costModifier: 1.3 },
+                { id: "6_targets", name: "Até 6 alvos", costModifier: 1.6 },
+                { id: "9_targets", name: "Até 9 alvos", costModifier: 1.9 },
+                { id: "12_targets", name: "Até 12 alvos", costModifier: 2.2 },
+                { id: "15_targets", name: "Até 15 alvos", costModifier: 2.5 },
+                { id: "18_targets", name: "Até 18 alvos", costModifier: 2.8 },
+                { id: "24_targets", name: "Até 24 alvos", costModifier: 3.1 },
+                { id: "30_targets", name: "Até 30 alvos", costModifier: 4.0 },
+              ],
+            },
+            {
+              id: "distance",
+              title: "Distância",
+              description: "Distância da magia",
+              required: false,
+              options: [
+                { id: "self_touch", name: "Self/Toque", costModifier: 1.0 },
+                { id: "5_meters", name: "Até 5 metros", costModifier: 1.1 },
+                { id: "10_meters", name: "Até 10 metros", costModifier: 1.2 },
+                { id: "30_meters", name: "Até 30 metros", costModifier: 1.5 },
+                { id: "50_meters", name: "Até 50 metros", costModifier: 2.0 },
+                { id: "100_meters", name: "Até 100 metros", costModifier: 2.5 },
+                { id: "500_meters", name: "Até 500 metros", costModifier: 5.0 },
+                { id: "10_km", name: "Até 10 Km", costModifier: 10.0 },
+              ],
+            },
+            {
+              id: "area",
+              title: "Área",
+              description: "Área de efeito da magia",
+              required: false,
+              options: [
+                { id: "point", name: "Pontual", costModifier: 1.0 },
+                {
+                  id: "5_m2",
+                  name: "5 m²",
+                  costModifier: 1.3,
+                  description: "Tenda",
+                },
+                {
+                  id: "15_m2",
+                  name: "15 m²",
+                  costModifier: 1.4,
+                  description: "Banheiro",
+                },
+                {
+                  id: "30_m2",
+                  name: "30 m²",
+                  costModifier: 1.5,
+                  description: "Quarto",
+                },
+                {
+                  id: "50_m2",
+                  name: "50 m²",
+                  costModifier: 1.6,
+                  description: "Salão",
+                },
+                {
+                  id: "100_m2",
+                  name: "100 m²",
+                  costModifier: 1.7,
+                  description: "Casebre",
+                },
+                {
+                  id: "250_m2",
+                  name: "250 m²",
+                  costModifier: 1.8,
+                  description: "Casa",
+                },
+                {
+                  id: "500_m2",
+                  name: "500 m²",
+                  costModifier: 1.9,
+                  description: "Casarão",
+                },
+                {
+                  id: "1000_m2",
+                  name: "1000 m²",
+                  costModifier: 2.0,
+                  description: "Mansão",
+                },
+                {
+                  id: "5000_m2",
+                  name: "5000 m²",
+                  costModifier: 2.2,
+                  description: "Catedral",
+                },
+                {
+                  id: "10000_m2",
+                  name: "10000 m²",
+                  costModifier: 2.4,
+                  description: "Castelo",
+                },
+                {
+                  id: "25000_m2",
+                  name: "25000 m²",
+                  costModifier: 2.6,
+                  description: "Palácio",
+                },
+                {
+                  id: "50000_m2",
+                  name: "50000 m²",
+                  costModifier: 2.8,
+                  description: "Distrito",
+                },
+                {
+                  id: "75000_m2",
+                  name: "75000 m²",
+                  costModifier: 3.0,
+                  description: "Vilarejo",
+                },
+                {
+                  id: "100000_m2",
+                  name: "100000 m²",
+                  costModifier: 4.0,
+                  description: "Cidade",
+                },
+              ],
+            },
+            {
+              id: "areaType",
+              title: "Tipo de Área",
+              description: "Tipo de área da magia",
+              required: false,
+              options: [
+                { id: "grupal", name: "Grupal", costModifier: 1.0 },
+                { id: "seletivo", name: "Seletivo", costModifier: 4.0 },
+              ],
+            },
+          ];
+
+          this.componentFields = defaultComponentFieldsConfig.map((config) =>
+            MagicComponentField.fromJSON(config)
+          );
+        }
+
+        // Add a new magic to the list
+        addMagic(name, componentSelections, baseCost = 1) {
+          if (!name || !name.trim()) {
+            alert("Por favor, digite um nome para a magia.");
+            return false;
+          }
+
+          // Check if any required fields are missing
+          const missingRequired = this.componentFields
+            .filter((field) => field.required && !componentSelections[field.id])
+            .map((field) => field.title);
+
+          if (missingRequired.length > 0) {
+            alert(`Por favor, selecione: ${missingRequired.join(", ")}`);
+            return false;
+          }
+
+          // Check if magic with same name already exists
+          const existingMagic = this.magics.find(
+            (magic) => magic.name.toLowerCase() === name.trim().toLowerCase()
+          );
+
+          if (existingMagic) {
+            alert(`A magia "${name.trim()}" já existe na lista.`);
+            return false;
+          }
+
+          const magic = new Magic(name.trim(), componentSelections, baseCost);
+          this.magics.push(magic);
+          this.saveMagicsToStorage();
+          this.renderMagicList();
+          return true;
+        }
+
+        // Remove a magic from the list
+        removeMagic(magicId) {
+          const index = this.magics.findIndex((magic) => magic.id === magicId);
+          if (index !== -1) {
+            const magic = this.magics[index];
+            if (
+              confirm(`Tem certeza que deseja remover a magia "${magic.name}"?`)
+            ) {
+              this.magics.splice(index, 1);
+              this.saveMagicsToStorage();
+              this.renderMagicList();
+              return true;
+            }
+          }
+          return false;
+        }
+
+        // Render component field selects
+        renderComponentOptions() {
+          const container = document.getElementById(
+            "magic-components-container"
+          );
+          if (!container) return;
+
+          // Clear existing content
+          container.innerHTML = "";
+
+          // Add component field selects
+          this.componentFields.forEach((field) => {
+            const fieldDiv = document.createElement("div");
+            fieldDiv.className = "mb-3";
+
+            const selectId = `magic-field-${field.id}`;
+            const requiredLabel = field.required ? " *" : "";
+
+            fieldDiv.innerHTML = `
+              <label for="${selectId}" class="form-label">
+                <strong>${field.title}${requiredLabel}</strong>
+              </label>
+              <select class="form-control magic-component-select" 
+                      id="${selectId}" 
+                      data-field-id="${field.id}"
+                      title="${field.description}">
+                <option value="">-- Selecione ${field.title} --</option>
+                ${field.options
+                  .map(
+                    (option) =>
+                      `<option value="${option.id}" title="Custo: ×${option.costModifier}">
+                    ${option.name} (×${option.costModifier})
+                   </option>`
+                  )
+                  .join("")}
+              </select>
+              ${
+                field.description
+                  ? `<small class="form-text text-muted">${field.description}</small>`
+                  : ""
+              }
+            `;
+
+            container.appendChild(fieldDiv);
+          });
+        }
+
+        // Render the complete magic list
+        renderMagicList() {
+          const container = document.getElementById("magic-list-container");
+          const countElement = document.getElementById("magic-count");
+          const noMagicMessage = document.getElementById("no-magic-message");
+
+          if (!container) return;
+
+          // Update count
+          if (countElement) {
+            countElement.textContent = this.magics.length;
+          }
+
+          // Clear container
+          container.innerHTML = "";
+
+          if (this.magics.length === 0) {
+            if (noMagicMessage) {
+              container.appendChild(noMagicMessage);
+            } else {
+              container.innerHTML =
+                '<p class="text-muted text-center">Nenhuma magia adicionada ainda.</p>';
+            }
+            return;
+          }
+
+          // Hide no magic message
+          if (noMagicMessage) {
+            noMagicMessage.style.display = "none";
+          }
+
+          // Render each magic
+          this.magics.forEach((magic) => {
+            const magicElement = this.renderMagicItem(magic);
+            container.appendChild(magicElement);
+          });
+
+          // Update total cost display
+          this.updateTotalCostDisplay();
+        }
+
+        // Render individual magic item
+        renderMagicItem(magic) {
+          const magicDiv = document.createElement("div");
+          magicDiv.className = "magic-item";
+          magicDiv.dataset.magicId = magic.id;
+
+          const finalCost = magic.getFinalCost(this.componentFields);
+          const componentDisplay = magic.getComponentSelectionsDisplay(
+            this.componentFields
+          );
+
+          magicDiv.innerHTML = `
+            <button class="magic-remove-btn" onclick="magicManager.removeMagic(${
+              magic.id
+            })" title="Remover magia">
+              ✕
+            </button>
+            <div class="magic-name">${this.escapeHtml(magic.name)}</div>
+            <div class="magic-details">
+              <span class="magic-component">${this.escapeHtml(
+                componentDisplay
+              )}</span>
+              <span class="magic-cost">Custo: ${finalCost}</span>
+            </div>
+          `;
+
+          return magicDiv;
+        }
+
+        // Update total cost display
+        updateTotalCostDisplay() {
+          const totalCost = this.magics.reduce(
+            (sum, magic) => sum + magic.getFinalCost(this.componentFields),
+            0
+          );
+
+          const totalCostElement = document.getElementById("magic-total-cost");
+          if (totalCostElement) {
+            totalCostElement.textContent = totalCost;
+          }
+        }
+
+        // Utility function to escape HTML
+        escapeHtml(text) {
+          const div = document.createElement("div");
+          div.textContent = text;
+          return div.innerHTML;
+        }
+
+        // Save magics to localStorage
+        saveMagicsToStorage() {
+          try {
+            const data = this.magics.map((magic) => magic.toJSON());
+            localStorage.setItem("fac_character_magics", JSON.stringify(data));
+            console.log("Magics saved to localStorage");
+          } catch (error) {
+            console.error("Error saving magics to localStorage:", error);
+          }
+        }
+
+        // Load magics from localStorage
+        loadMagicsFromStorage() {
+          try {
+            const data = localStorage.getItem("fac_character_magics");
+            if (data) {
+              const magicsData = JSON.parse(data);
+              this.magics = magicsData.map((magicData) =>
+                Magic.fromJSON(magicData)
+              );
+              console.log("Magics loaded from localStorage");
+            }
+          } catch (error) {
+            console.error("Error loading magics from localStorage:", error);
+            this.magics = [];
+          }
+        }
+
+        // Clear all magics
+        clearAllMagics() {
+          if (this.magics.length === 0) {
+            alert("Não há magias para remover.");
+            return;
+          }
+
+          if (
+            confirm(
+              "Tem certeza que deseja remover todas as magias? Esta ação não pode ser desfeita."
+            )
+          ) {
+            this.magics = [];
+            this.saveMagicsToStorage();
+            this.renderMagicList();
+          }
+        }
+
+        // Get magics data for character save
+        getMagicsData() {
+          return this.magics.map((magic) => magic.toJSON());
+        }
+
+        // Load magics data from character load
+        loadMagicsData(magicsData) {
+          if (Array.isArray(magicsData)) {
+            this.magics = magicsData.map((magicData) =>
+              Magic.fromJSON(magicData)
+            );
+            this.renderMagicList();
+          }
+        }
+      }
+
+      // Global magic manager instance
+      let magicManager;
+
+      // Functions for UI interaction
+      function addMagicSpell() {
+        const nameInput = document.getElementById("magic-name-input");
+        const costInput = document.getElementById("magic-cost-input");
+        const componentSelects = document.querySelectorAll(
+          ".magic-component-select"
+        );
+
+        if (!nameInput || !costInput) {
+          alert("Erro: Elementos de entrada não encontrados.");
+          return;
+        }
+
+        const name = nameInput.value;
+        const baseCost = parseInt(costInput.value) || 1;
+
+        // Collect component selections
+        const componentSelections = {};
+        componentSelects.forEach((select) => {
+          const fieldId = select.dataset.fieldId;
+          const value = select.value;
+          if (value) {
+            componentSelections[fieldId] = value;
+          }
+        });
+
+        if (magicManager.addMagic(name, componentSelections, baseCost)) {
+          // Clear inputs on success
+          nameInput.value = "";
+          costInput.value = "1";
+
+          // Reset all component selects
+          componentSelects.forEach((select) => (select.value = ""));
+
+          // Trigger auto-save
+          clearTimeout(window.saveTimeout);
+          window.saveTimeout = setTimeout(() => {
+            saveCharacterDataToStorage();
+          }, 500);
+        }
+      }
+
+      // Handle keyboard input for magic creation
+      function handleMagicInputKeypress(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addMagicSpell();
+        }
+      }
+
+      // Function to clear all magics (can be called from UI)
+      function clearAllMagics() {
+        if (magicManager) {
+          magicManager.clearAllMagics();
+
+          // Trigger auto-save
+          clearTimeout(window.saveTimeout);
+          window.saveTimeout = setTimeout(() => {
+            saveCharacterDataToStorage();
+          }, 500);
+        }
       }
       function toggleAllSectionsPreview() {
         const previewDiv = document.getElementById("all-sections-preview");
