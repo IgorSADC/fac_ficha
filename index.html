@@ -278,6 +278,31 @@
 
       #magic-list-container {
         background: #f8f9fa;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      /* Ensure both magic columns have equal height */
+      .magic-creation-row {
+        display: flex;
+      }
+
+      .magic-creation-row .col-md-6 {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .magic-creation-form,
+      .magic-list-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #magic-list-container {
+        background: #f8f9fa;
+        flex: 1;
+        overflow-y: auto;
       }
 
       #magic-list-container:empty::before {
@@ -344,7 +369,7 @@
 
       .essence-quantity:focus {
         border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
       }
 
       .essence-checkboxes .form-check {
@@ -649,10 +674,11 @@
           <div class="resources-section" id="magic-creation-section">
             <div class="section-header">✨ Criação de Magias</div>
             <div class="p-3">
-              <div class="row">
+              <div class="row magic-creation-row">
                 <!-- Magic Creation Form -->
                 <div class="col-md-6">
-                  <h6 class="mb-3">Adicionar Nova Magia</h6>
+                  <div class="magic-creation-form">
+                    <h6 class="mb-3">Adicionar Nova Magia</h6>
                   <div class="mb-3">
                     <label for="magic-name-input" class="form-label"
                       >Nome da Magia</label
@@ -730,44 +756,42 @@
                   >
                     ➕ Adicionar Magia
                   </button>
+                  </div>
                 </div>
 
                 <!-- Magic List Display -->
                 <div class="col-md-6">
-                  <h6 class="mb-3">Magias Conhecidas</h6>
-                  <div
-                    id="magic-list-container"
-                    class="border rounded p-2"
-                    style="
-                      min-height: 200px;
-                      max-height: 300px;
-                      overflow-y: auto;
-                    "
-                  >
-                    <p class="text-muted text-center" id="no-magic-message">
-                      Nenhuma magia adicionada ainda.
-                    </p>
-                  </div>
-                  <div
-                    class="mt-2 d-flex justify-content-between align-items-center"
-                  >
-                    <small class="text-muted"
-                      >Total de magias: <span id="magic-count">0</span></small
+                  <div class="magic-list-section">
+                    <h6 class="mb-3">Magias Conhecidas</h6>
+                    <div
+                      id="magic-list-container"
+                      class="border rounded p-2"
                     >
-                    <small class="text-info"
-                      ><strong
-                        >Custo Total:
-                        <span id="magic-total-cost">0</span></strong
-                      ></small
+                      <p class="text-muted text-center" id="no-magic-message">
+                        Nenhuma magia adicionada ainda.
+                      </p>
+                    </div>
+                    <div
+                      class="mt-2 d-flex justify-content-between align-items-center"
                     >
-                    <button
-                      type="button"
-                      class="btn btn-sm btn-outline-danger"
-                      onclick="clearAllMagics()"
-                      title="Remover todas as magias"
-                    >
-                      🗑️ Limpar Todas
-                    </button>
+                      <small class="text-muted"
+                        >Total de magias: <span id="magic-count">0</span></small
+                      >
+                      <small class="text-info"
+                        ><strong
+                          >Custo Total:
+                          <span id="magic-total-cost">0</span></strong
+                        ></small
+                      >
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="clearAllMagics()"
+                        title="Remover todas as magias"
+                      >
+                        🗑️ Limpar Todas
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2828,7 +2852,10 @@
 
         // Calculate base cost from selected essences with hemisphere proximity modifiers
         calculateBaseCostFromEssences() {
-          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
+          if (
+            !this.essenceQuantities ||
+            Object.keys(this.essenceQuantities).length === 0
+          ) {
             return 1;
           }
 
@@ -2852,9 +2879,10 @@
 
           // Apply hemisphere proximity modifiers
           const selectedEssenceIds = Object.keys(this.essenceQuantities).filter(
-            id => this.essenceQuantities[id] > 0
+            (id) => this.essenceQuantities[id] > 0
           );
-          const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
+          const proximityResult =
+            calculateHemisphereProximityModifier(selectedEssenceIds);
           totalCost *= proximityResult.modifier;
 
           return Math.max(Math.ceil(totalCost), 1); // Minimum cost of 1
@@ -2883,7 +2911,10 @@
 
         // Calculate final dice from selected essences
         getFinalDice() {
-          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
+          if (
+            !this.essenceQuantities ||
+            Object.keys(this.essenceQuantities).length === 0
+          ) {
             return "0";
           }
 
@@ -2937,7 +2968,10 @@
 
         // Get selected essences as display string
         getEssencesDisplay() {
-          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
+          if (
+            !this.essenceQuantities ||
+            Object.keys(this.essenceQuantities).length === 0
+          ) {
             return "Nenhuma essência";
           }
 
@@ -2950,7 +2984,10 @@
                   (e) => e.id === essenceId
                 );
                 if (essence) {
-                  const displayName = quantity > 1 ? `${essence.name} (x${quantity})` : essence.name;
+                  const displayName =
+                    quantity > 1
+                      ? `${essence.name} (x${quantity})`
+                      : essence.name;
                   essenceNames.push(displayName);
                   break;
                 }
@@ -2958,12 +2995,17 @@
             }
           });
 
-          return essenceNames.length > 0 ? essenceNames.join(", ") : "Nenhuma essência";
+          return essenceNames.length > 0
+            ? essenceNames.join(", ")
+            : "Nenhuma essência";
         }
 
         // Get hemisphere proximity modifier details
         getHemisphereProximityDetails() {
-          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length <= 1) {
+          if (
+            !this.essenceQuantities ||
+            Object.keys(this.essenceQuantities).length <= 1
+          ) {
             return { modifier: 1.0, description: "" };
           }
 
@@ -2986,9 +3028,10 @@
           });
 
           const selectedEssenceIds = Object.keys(this.essenceQuantities).filter(
-            id => this.essenceQuantities[id] > 0
+            (id) => this.essenceQuantities[id] > 0
           );
-          const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
+          const proximityResult =
+            calculateHemisphereProximityModifier(selectedEssenceIds);
 
           // Format description from details
           const description = proximityResult.details
@@ -3798,7 +3841,8 @@
       // Function to update base cost based on selected essences with hemisphere proximity modifiers
       // Function to update base cost based on selected essence quantities
       function updateBaseCostFromEssences() {
-        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        const essenceQuantityInputs =
+          document.querySelectorAll(".essence-quantity");
         let totalCost = 0;
         const essenceQuantities = {};
 
@@ -3806,12 +3850,14 @@
         essenceQuantityInputs.forEach((input) => {
           const essenceId = input.dataset.essenceId;
           const quantity = parseInt(input.value) || 0;
-          
+
           if (quantity > 0) {
             essenceQuantities[essenceId] = quantity;
-            
+
             for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find((e) => e.id === essenceId);
+              const essence = hemisphere.essences.find(
+                (e) => e.id === essenceId
+              );
               if (essence) {
                 totalCost += essence.cost * quantity;
                 break;
@@ -3822,7 +3868,8 @@
 
         // Apply hemisphere proximity modifiers
         const selectedEssenceIds = Object.keys(essenceQuantities);
-        const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
+        const proximityResult =
+          calculateHemisphereProximityModifier(selectedEssenceIds);
         totalCost *= proximityResult.modifier;
 
         // Update the display and input
@@ -3903,7 +3950,8 @@
       // Update dice display based on selected essences
       // Update dice display based on selected essence quantities
       function updateFinalDiceDisplay() {
-        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        const essenceQuantityInputs =
+          document.querySelectorAll(".essence-quantity");
         const essenceQuantities = {};
 
         // Collect essence quantities
@@ -3944,7 +3992,8 @@
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
         );
-        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        const essenceQuantityInputs =
+          document.querySelectorAll(".essence-quantity");
 
         if (!nameInput || !costInput || !diceInput) {
           alert("Erro: Elementos de entrada não encontrados.");
