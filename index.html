@@ -330,6 +330,18 @@
         color: #007bff;
       }
 
+      .magic-proximity {
+        font-size: 11px;
+        margin-bottom: 3px;
+      }
+
+      .magic-proximity small {
+        background-color: #e3f2fd;
+        padding: 2px 6px;
+        border-radius: 3px;
+        border: 1px solid #90caf9;
+      }
+
       .form-check-label strong {
         color: #495057;
       }
@@ -605,7 +617,10 @@
                     />
                   </div>
                   <div class="mb-3">
-                    <div id="magic-essences-container" class="p-2 bg-light border rounded">
+                    <div
+                      id="magic-essences-container"
+                      class="p-2 bg-light border rounded"
+                    >
                       <!-- Essences selection will be populated by JavaScript -->
                     </div>
                   </div>
@@ -632,7 +647,6 @@
                       min="1"
                       readonly
                       title="O custo base é calculado automaticamente pelas essências selecionadas"
-                    />
                     />
                   </div>
                   <button
@@ -2717,7 +2731,12 @@
 
       // Magic class to represent individual spells
       class Magic {
-        constructor(name, componentSelections = {}, selectedEssences = [], baseCost = null) {
+        constructor(
+          name,
+          componentSelections = {},
+          selectedEssences = [],
+          baseCost = null
+        ) {
           this.id = Date.now() + Math.random(); // Simple unique ID
           this.name = name;
           this.componentSelections = componentSelections; // Object with fieldId: optionId
@@ -2726,17 +2745,20 @@
           this.createdAt = new Date();
         }
 
-        // Calculate base cost from selected essences
+        // Calculate base cost from selected essences with hemisphere proximity modifiers
         calculateBaseCostFromEssences() {
           if (!this.selectedEssences || this.selectedEssences.length === 0) {
             return 1;
           }
 
           let totalCost = 0;
-          this.selectedEssences.forEach(essenceId => {
-            // Find the essence in the configuration
+
+          // Calculate base cost from essences
+          this.selectedEssences.forEach((essenceId) => {
             for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(e => e.id === essenceId);
+              const essence = hemisphere.essences.find(
+                (e) => e.id === essenceId
+              );
               if (essence) {
                 totalCost += essence.cost;
                 break;
@@ -2744,7 +2766,13 @@
             }
           });
 
-          return Math.max(totalCost, 1); // Minimum cost of 1
+          // Apply hemisphere proximity modifiers
+          const proximityResult = calculateHemisphereProximityModifier(
+            this.selectedEssences
+          );
+          totalCost *= proximityResult.modifier;
+
+          return Math.max(Math.ceil(totalCost), 1); // Minimum cost of 1
         }
 
         // Calculate final cost based on component selections
@@ -2775,9 +2803,11 @@
           }
 
           const essenceNames = [];
-          this.selectedEssences.forEach(essenceId => {
+          this.selectedEssences.forEach((essenceId) => {
             for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(e => e.id === essenceId);
+              const essence = hemisphere.essences.find(
+                (e) => e.id === essenceId
+              );
               if (essence) {
                 essenceNames.push(essence.name);
                 break;
@@ -2786,6 +2816,47 @@
           });
 
           return essenceNames.join(", ");
+        }
+
+        // Get hemisphere proximity modifier details
+        getHemisphereProximityDetails() {
+          if (!this.selectedEssences || this.selectedEssences.length <= 1) {
+            return { modifier: 1.0, description: "" };
+          }
+
+          let rawCost = 0;
+
+          // Calculate raw cost
+          this.selectedEssences.forEach((essenceId) => {
+            for (let hemisphere of essencesConfig) {
+              const essence = hemisphere.essences.find(
+                (e) => e.id === essenceId
+              );
+              if (essence) {
+                rawCost += essence.cost;
+                break;
+              }
+            }
+          });
+
+          const proximityResult = calculateHemisphereProximityModifier(
+            this.selectedEssences
+          );
+
+          // Format description from details
+          const description = proximityResult.details
+            .map(
+              (detail) =>
+                `${detail.pair}: ${detail.relationship} (×${detail.modifier})`
+            )
+            .join(", ");
+
+          return {
+            modifier: proximityResult.modifier,
+            description: description,
+            rawCost: rawCost,
+            finalCost: Math.ceil(rawCost * proximityResult.modifier),
+          };
         }
 
         // Get component selections as display string
@@ -2844,8 +2915,8 @@
             { id: "fax", name: "Fax", cost: 2 },
             { id: "potentia", name: "Potentia", cost: 2 },
             { id: "kinetica", name: "Kinetica", cost: 2 },
-            { id: "anarchia", name: "Anarchia", cost: 3 }
-          ]
+            { id: "anarchia", name: "Anarchia", cost: 3 },
+          ],
         },
         {
           id: "material",
@@ -2855,8 +2926,8 @@
             { id: "aqua", name: "Aqua", cost: 2 },
             { id: "terra", name: "Terra", cost: 2 },
             { id: "era", name: "Era", cost: 2 },
-            { id: "metallum", name: "Metallum", cost: 4 }
-          ]
+            { id: "metallum", name: "Metallum", cost: 4 },
+          ],
         },
         {
           id: "ilusorio",
@@ -2866,8 +2937,8 @@
             { id: "ego", name: "Ego", cost: 2 },
             { id: "suego", name: "Suego", cost: 5 },
             { id: "sensus", name: "Sensus", cost: 1 },
-            { id: "realitas", name: "Realitas", cost: 10 }
-          ]
+            { id: "realitas", name: "Realitas", cost: 10 },
+          ],
         },
         {
           id: "conjurador",
@@ -2877,8 +2948,8 @@
             { id: "dyn", name: "Dyn", cost: 2 },
             { id: "creatio", name: "Creatio", cost: 2 },
             { id: "clavis", name: "Clavis", cost: 1 },
-            { id: "influentia", name: "Influentia", cost: 7 }
-          ]
+            { id: "influentia", name: "Influentia", cost: 7 },
+          ],
         },
         {
           id: "vida",
@@ -2888,8 +2959,8 @@
             { id: "roratio", name: "Roratio", cost: 2 },
             { id: "puri", name: "Puri", cost: 2 },
             { id: "bene", name: "Bene", cost: 5 },
-            { id: "renatio", name: "Renatio", cost: 3 }
-          ]
+            { id: "renatio", name: "Renatio", cost: 3 },
+          ],
         },
         {
           id: "morte",
@@ -2899,10 +2970,89 @@
             { id: "infirmi", name: "Infirmi", cost: 2 },
             { id: "corruptio", name: "Corruptio", cost: 4 },
             { id: "maledictio", name: "Maledictio", cost: 2 },
-            { id: "necro", name: "Necro", cost: 5 }
-          ]
-        }
+            { id: "necro", name: "Necro", cost: 5 },
+          ],
+        },
       ];
+
+      // Hemisphere proximity configuration for calculating modifiers
+      const hemisphereProximity = {
+        energetico: {
+          close: ["morte", "ilusorio"],
+        },
+        material: {
+          close: ["conjurdor", "vida"],
+        },
+        ilusorio: {
+          close: ["morte", "energetico"],
+        },
+        conjurador: {
+          close: ["material", "vida"],
+        },
+        vida: {
+          close: ["material", "conjurador"],
+        },
+        morte: {
+          close: ["ilusorio", "energetico"],
+        },
+      };
+
+      // Helper function to calculate hemisphere proximity modifier
+      function calculateHemisphereProximityModifier(selectedEssences) {
+        if (!selectedEssences || selectedEssences.length === 0) {
+          return { modifier: 1.0, details: [] };
+        }
+
+        const selectedHemispheres = new Set();
+
+        // Collect hemispheres from selected essences
+        selectedEssences.forEach((essenceId) => {
+          for (let hemisphere of essencesConfig) {
+            const essence = hemisphere.essences.find((e) => e.id === essenceId);
+            if (essence) {
+              selectedHemispheres.add(hemisphere.id);
+              break;
+            }
+          }
+        });
+
+        if (selectedHemispheres.size <= 1) {
+          return { modifier: 1.0, details: [] };
+        }
+
+        const hemisphereArray = Array.from(selectedHemispheres);
+        let proximityModifier = 1.0;
+        const proximityDetails = [];
+
+        // Check proximity between consecutive hemispheres only
+        for (let i = 1; i < hemisphereArray.length; i++) {
+          const hemisphere1 = hemisphereArray[i - 1];
+          const hemisphere2 = hemisphereArray[i];
+
+          const proximity1 = hemisphereProximity[hemisphere1];
+          let pairModifier = 1.2; // Default: far modifier
+          let relationship = "distante";
+
+          if (proximity1) {
+            if (proximity1.close && proximity1.close.includes(hemisphere2)) {
+              pairModifier = 1.1; // Close modifier
+              relationship = "próximo";
+            }
+          }
+
+          proximityModifier *= pairModifier;
+          proximityDetails.push({
+            pair: `${hemisphere1}+${hemisphere2}`,
+            relationship,
+            modifier: pairModifier,
+          });
+        }
+
+        return {
+          modifier: proximityModifier,
+          details: proximityDetails,
+        };
+      }
 
       // Magic Component class to handle magic list management and rendering
       class MagicManager {
@@ -3113,7 +3263,12 @@
         }
 
         // Add a new magic with essences to the list
-        addMagicWithEssences(name, componentSelections, selectedEssences, baseCost = 1) {
+        addMagicWithEssences(
+          name,
+          componentSelections,
+          selectedEssences,
+          baseCost = 1
+        ) {
           if (!name || !name.trim()) {
             alert("Por favor, digite um nome para a magia.");
             return false;
@@ -3139,7 +3294,12 @@
             return false;
           }
 
-          const magic = new Magic(name.trim(), componentSelections, selectedEssences, baseCost);
+          const magic = new Magic(
+            name.trim(),
+            componentSelections,
+            selectedEssences,
+            baseCost
+          );
           this.magics.push(magic);
           this.saveMagicsToStorage();
           this.renderMagicList();
@@ -3230,13 +3390,17 @@
           container.appendChild(headerDiv);
 
           // Create essences by hemisphere
-          this.essencesConfig.forEach(hemisphere => {
+          this.essencesConfig.forEach((hemisphere) => {
             const hemisphereDiv = document.createElement("div");
             hemisphereDiv.className = "mb-3 p-2 border rounded";
             hemisphereDiv.innerHTML = `
               <h6 class="mb-2 text-primary">${hemisphere.name}</h6>
-              <div class="essence-checkboxes" data-hemisphere="${hemisphere.id}">
-                ${hemisphere.essences.map(essence => `
+              <div class="essence-checkboxes" data-hemisphere="${
+                hemisphere.id
+              }">
+                ${hemisphere.essences
+                  .map(
+                    (essence) => `
                   <div class="form-check form-check-inline">
                     <input class="form-check-input essence-checkbox" 
                            type="checkbox" 
@@ -3247,7 +3411,9 @@
                       ${essence.name} (${essence.cost})
                     </label>
                   </div>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </div>
             `;
             container.appendChild(hemisphereDiv);
@@ -3306,6 +3472,18 @@
             this.componentFields
           );
           const essencesDisplay = magic.getEssencesDisplay();
+          const proximityDetails = magic.getHemisphereProximityDetails();
+
+          let proximityInfo = "";
+          if (proximityDetails.modifier > 1.0) {
+            proximityInfo = `
+              <div class="magic-proximity">
+                <small class="text-info">Modificador Hemisférios: ×${proximityDetails.modifier.toFixed(
+                  2
+                )}</small>
+              </div>
+            `;
+          }
 
           magicDiv.innerHTML = `
             <button class="magic-remove-btn" onclick="magicManager.removeMagic(${
@@ -3316,10 +3494,15 @@
             <div class="magic-name">${this.escapeHtml(magic.name)}</div>
             <div class="magic-details">
               <div class="magic-essences">
-                <small class="text-muted">Essências:</small> ${this.escapeHtml(essencesDisplay)}
+                <small class="text-muted">Essências:</small> ${this.escapeHtml(
+                  essencesDisplay
+                )}
               </div>
+              ${proximityInfo}
               <div class="magic-components">
-                <small class="text-muted">Componentes:</small> ${this.escapeHtml(componentDisplay)}
+                <small class="text-muted">Componentes:</small> ${this.escapeHtml(
+                  componentDisplay
+                )}
               </div>
               <div class="magic-cost-breakdown">
                 <span class="magic-base-cost">Base: ${magic.baseCost}</span>
@@ -3416,33 +3599,51 @@
       // Global magic manager instance
       let magicManager;
 
-      // Function to update base cost based on selected essences
+      // Function to update base cost based on selected essences with hemisphere proximity modifiers
       function updateBaseCostFromEssences() {
-        const checkedEssences = document.querySelectorAll('.essence-checkbox:checked');
+        const checkedEssences = document.querySelectorAll(
+          ".essence-checkbox:checked"
+        );
         let totalCost = 0;
-        
-        checkedEssences.forEach(checkbox => {
-          const essenceId = checkbox.value;
-          // Find the essence cost in the configuration
+
+        // Calculate base cost from selected essences
+        const selectedEssenceIds = Array.from(checkedEssences).map(
+          (cb) => cb.value
+        );
+
+        selectedEssenceIds.forEach((essenceId) => {
           for (let hemisphere of essencesConfig) {
-            const essence = hemisphere.essences.find(e => e.id === essenceId);
+            const essence = hemisphere.essences.find((e) => e.id === essenceId);
             if (essence) {
               totalCost += essence.cost;
               break;
             }
           }
         });
-        
+
+        // Apply hemisphere proximity modifiers
+        const proximityResult =
+          calculateHemisphereProximityModifier(selectedEssenceIds);
+        totalCost *= proximityResult.modifier;
+
         // Update the display and input
-        const baseCost = Math.max(totalCost, 1);
+        const baseCost = Math.max(Math.ceil(totalCost), 1);
         const costInput = document.getElementById("magic-cost-input");
         const costDisplay = document.getElementById("calculated-base-cost");
-        
+
         if (costInput) {
           costInput.value = baseCost;
         }
+        console.log("-----proximityResult", proximityResult);
         if (costDisplay) {
-          costDisplay.textContent = `Custo Base: ${baseCost}`;
+          // Show proximity modifier info if applicable
+          let displayText = `Custo Base: ${baseCost}`;
+          if (proximityResult.details.length > 0) {
+            displayText += ` (×${proximityResult.modifier.toFixed(
+              2
+            )} por hemisférios diferentes)`;
+          }
+          costDisplay.textContent = displayText;
         }
       }
 
@@ -3453,7 +3654,9 @@
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
         );
-        const essenceCheckboxes = document.querySelectorAll('.essence-checkbox:checked');
+        const essenceCheckboxes = document.querySelectorAll(
+          ".essence-checkbox:checked"
+        );
 
         if (!nameInput || !costInput) {
           alert("Erro: Elementos de entrada não encontrados.");
@@ -3464,7 +3667,9 @@
         const baseCost = parseInt(costInput.value) || 1;
 
         // Collect selected essences
-        const selectedEssences = Array.from(essenceCheckboxes).map(cb => cb.value);
+        const selectedEssences = Array.from(essenceCheckboxes).map(
+          (cb) => cb.value
+        );
 
         // Collect component selections
         const componentSelections = {};
@@ -3476,7 +3681,14 @@
           }
         });
 
-        if (magicManager.addMagicWithEssences(name, componentSelections, selectedEssences, baseCost)) {
+        if (
+          magicManager.addMagicWithEssences(
+            name,
+            componentSelections,
+            selectedEssences,
+            baseCost
+          )
+        ) {
           // Clear inputs on success
           nameInput.value = "";
           costInput.value = "1";
@@ -3485,7 +3697,7 @@
           componentSelects.forEach((select) => (select.value = ""));
 
           // Reset all essence checkboxes
-          essenceCheckboxes.forEach(checkbox => checkbox.checked = false);
+          essenceCheckboxes.forEach((checkbox) => (checkbox.checked = false));
 
           // Update base cost display
           updateBaseCostFromEssences();
