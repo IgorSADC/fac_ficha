@@ -318,6 +318,35 @@
         gap: 10px;
       }
 
+      .essence-quantity-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 120px;
+        margin-bottom: 8px;
+      }
+
+      .essence-label {
+        font-size: 0.875rem;
+        text-align: center;
+        margin-bottom: 4px;
+        cursor: default;
+      }
+
+      .essence-quantity {
+        width: 60px;
+        height: 32px;
+        text-align: center;
+        font-size: 0.875rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+      }
+
+      .essence-quantity:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+      }
+
       .essence-checkboxes .form-check {
         margin-bottom: 5px;
       }
@@ -2784,14 +2813,14 @@
         constructor(
           name,
           componentSelections = {},
-          selectedEssences = [],
+          essenceQuantities = {},
           baseCost = null,
           dice = null
         ) {
           this.id = Date.now() + Math.random(); // Simple unique ID
           this.name = name;
           this.componentSelections = componentSelections; // Object with fieldId: optionId
-          this.selectedEssences = selectedEssences; // Array of essence IDs
+          this.essenceQuantities = essenceQuantities; // Object with essenceId: quantity
           this.baseCost = baseCost || this.calculateBaseCostFromEssences();
           this.dice = dice || this.getFinalDice(); // Final dice string
           this.createdAt = new Date();
@@ -2799,29 +2828,33 @@
 
         // Calculate base cost from selected essences with hemisphere proximity modifiers
         calculateBaseCostFromEssences() {
-          if (!this.selectedEssences || this.selectedEssences.length === 0) {
+          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
             return 1;
           }
 
           let totalCost = 0;
 
-          // Calculate base cost from essences
-          this.selectedEssences.forEach((essenceId) => {
-            for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(
-                (e) => e.id === essenceId
-              );
-              if (essence) {
-                totalCost += essence.cost;
-                break;
+          // Calculate base cost from essence quantities
+          Object.keys(this.essenceQuantities).forEach((essenceId) => {
+            const quantity = this.essenceQuantities[essenceId];
+            if (quantity > 0) {
+              for (let hemisphere of essencesConfig) {
+                const essence = hemisphere.essences.find(
+                  (e) => e.id === essenceId
+                );
+                if (essence) {
+                  totalCost += essence.cost * quantity;
+                  break;
+                }
               }
             }
           });
 
           // Apply hemisphere proximity modifiers
-          const proximityResult = calculateHemisphereProximityModifier(
-            this.selectedEssences
+          const selectedEssenceIds = Object.keys(this.essenceQuantities).filter(
+            id => this.essenceQuantities[id] > 0
           );
+          const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
           totalCost *= proximityResult.modifier;
 
           return Math.max(Math.ceil(totalCost), 1); // Minimum cost of 1
@@ -2850,33 +2883,36 @@
 
         // Calculate final dice from selected essences
         getFinalDice() {
-          if (!this.selectedEssences || this.selectedEssences.length === 0) {
+          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
             return "0";
           }
 
           const diceMap = {};
 
-          // Collect all dice from selected essences
-          this.selectedEssences.forEach((essenceId) => {
-            for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(
-                (e) => e.id === essenceId
-              );
-              if (essence && essence.dice) {
-                // Parse dice (e.g., "1d4" -> {count: 1, sides: 4})
-                const diceMatch = essence.dice.match(/(\d+)d(\d+)/);
-                if (diceMatch) {
-                  const count = parseInt(diceMatch[1]);
-                  const sides = parseInt(diceMatch[2]);
-                  const diceType = `d${sides}`;
+          // Collect all dice from essence quantities
+          Object.keys(this.essenceQuantities).forEach((essenceId) => {
+            const quantity = this.essenceQuantities[essenceId];
+            if (quantity > 0) {
+              for (let hemisphere of essencesConfig) {
+                const essence = hemisphere.essences.find(
+                  (e) => e.id === essenceId
+                );
+                if (essence && essence.dice) {
+                  // Parse dice (e.g., "1d4" -> {count: 1, sides: 4})
+                  const diceMatch = essence.dice.match(/(\d+)d(\d+)/);
+                  if (diceMatch) {
+                    const count = parseInt(diceMatch[1]) * quantity; // Multiply by quantity
+                    const sides = parseInt(diceMatch[2]);
+                    const diceType = `d${sides}`;
 
-                  if (diceMap[diceType]) {
-                    diceMap[diceType] += count;
-                  } else {
-                    diceMap[diceType] = count;
+                    if (diceMap[diceType]) {
+                      diceMap[diceType] += count;
+                    } else {
+                      diceMap[diceType] = count;
+                    }
                   }
+                  break;
                 }
-                break;
               }
             }
           });
@@ -2901,50 +2937,58 @@
 
         // Get selected essences as display string
         getEssencesDisplay() {
-          if (!this.selectedEssences || this.selectedEssences.length === 0) {
+          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length === 0) {
             return "Nenhuma essência";
           }
 
           const essenceNames = [];
-          this.selectedEssences.forEach((essenceId) => {
-            for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(
-                (e) => e.id === essenceId
-              );
-              if (essence) {
-                essenceNames.push(essence.name);
-                break;
+          Object.keys(this.essenceQuantities).forEach((essenceId) => {
+            const quantity = this.essenceQuantities[essenceId];
+            if (quantity > 0) {
+              for (let hemisphere of essencesConfig) {
+                const essence = hemisphere.essences.find(
+                  (e) => e.id === essenceId
+                );
+                if (essence) {
+                  const displayName = quantity > 1 ? `${essence.name} (x${quantity})` : essence.name;
+                  essenceNames.push(displayName);
+                  break;
+                }
               }
             }
           });
 
-          return essenceNames.join(", ");
+          return essenceNames.length > 0 ? essenceNames.join(", ") : "Nenhuma essência";
         }
 
         // Get hemisphere proximity modifier details
         getHemisphereProximityDetails() {
-          if (!this.selectedEssences || this.selectedEssences.length <= 1) {
+          if (!this.essenceQuantities || Object.keys(this.essenceQuantities).length <= 1) {
             return { modifier: 1.0, description: "" };
           }
 
           let rawCost = 0;
 
-          // Calculate raw cost
-          this.selectedEssences.forEach((essenceId) => {
-            for (let hemisphere of essencesConfig) {
-              const essence = hemisphere.essences.find(
-                (e) => e.id === essenceId
-              );
-              if (essence) {
-                rawCost += essence.cost;
-                break;
+          // Calculate raw cost from essence quantities
+          Object.keys(this.essenceQuantities).forEach((essenceId) => {
+            const quantity = this.essenceQuantities[essenceId];
+            if (quantity > 0) {
+              for (let hemisphere of essencesConfig) {
+                const essence = hemisphere.essences.find(
+                  (e) => e.id === essenceId
+                );
+                if (essence) {
+                  rawCost += essence.cost * quantity;
+                  break;
+                }
               }
             }
           });
 
-          const proximityResult = calculateHemisphereProximityModifier(
-            this.selectedEssences
+          const selectedEssenceIds = Object.keys(this.essenceQuantities).filter(
+            id => this.essenceQuantities[id] > 0
           );
+          const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
 
           // Format description from details
           const description = proximityResult.details
@@ -2988,7 +3032,7 @@
             id: this.id,
             name: this.name,
             componentSelections: this.componentSelections,
-            selectedEssences: this.selectedEssences,
+            essenceQuantities: this.essenceQuantities,
             baseCost: this.baseCost,
             dice: this.dice,
             createdAt: this.createdAt.toISOString(),
@@ -3000,7 +3044,7 @@
           const magic = new Magic(
             data.name,
             data.componentSelections || {},
-            data.selectedEssences || [],
+            data.essenceQuantities || data.selectedEssences || {}, // Support old format
             data.baseCost || 1,
             data.dice || null
           );
@@ -3382,7 +3426,7 @@
         addMagicWithEssences(
           name,
           componentSelections,
-          selectedEssences,
+          essenceQuantities,
           baseCost = 1,
           dice = null
         ) {
@@ -3414,7 +3458,7 @@
           const magic = new Magic(
             name.trim(),
             componentSelections,
-            selectedEssences,
+            essenceQuantities,
             baseCost,
             dice
           );
@@ -3530,15 +3574,19 @@
                 ${hemisphere.essences
                   .map(
                     (essence) => `
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input essence-checkbox" 
-                           type="checkbox" 
-                           id="essence-${essence.id}" 
-                           value="${essence.id}"
-                           onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()">
-                    <label class="form-check-label" for="essence-${essence.id}">
+                  <div class="form-check form-check-inline essence-quantity-container">
+                    <label class="form-check-label essence-label" for="essence-${essence.id}">
                       ${essence.name} (${essence.cost})
                     </label>
+                    <input class="form-control essence-quantity" 
+                           type="number" 
+                           id="essence-${essence.id}" 
+                           value="0"
+                           min="0"
+                           max="10"
+                           data-essence-id="${essence.id}"
+                           onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
+                           title="Quantidade de ${essence.name} (custo: ${essence.cost} cada)">
                   </div>
                 `
                   )
@@ -3748,30 +3796,33 @@
       let magicManager;
 
       // Function to update base cost based on selected essences with hemisphere proximity modifiers
+      // Function to update base cost based on selected essence quantities
       function updateBaseCostFromEssences() {
-        const checkedEssences = document.querySelectorAll(
-          ".essence-checkbox:checked"
-        );
+        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
         let totalCost = 0;
+        const essenceQuantities = {};
 
-        // Calculate base cost from selected essences
-        const selectedEssenceIds = Array.from(checkedEssences).map(
-          (cb) => cb.value
-        );
-
-        selectedEssenceIds.forEach((essenceId) => {
-          for (let hemisphere of essencesConfig) {
-            const essence = hemisphere.essences.find((e) => e.id === essenceId);
-            if (essence) {
-              totalCost += essence.cost;
-              break;
+        // Calculate base cost from essence quantities
+        essenceQuantityInputs.forEach((input) => {
+          const essenceId = input.dataset.essenceId;
+          const quantity = parseInt(input.value) || 0;
+          
+          if (quantity > 0) {
+            essenceQuantities[essenceId] = quantity;
+            
+            for (let hemisphere of essencesConfig) {
+              const essence = hemisphere.essences.find((e) => e.id === essenceId);
+              if (essence) {
+                totalCost += essence.cost * quantity;
+                break;
+              }
             }
           }
         });
 
         // Apply hemisphere proximity modifiers
-        const proximityResult =
-          calculateHemisphereProximityModifier(selectedEssenceIds);
+        const selectedEssenceIds = Object.keys(essenceQuantities);
+        const proximityResult = calculateHemisphereProximityModifier(selectedEssenceIds);
         totalCost *= proximityResult.modifier;
 
         // Update the display and input
@@ -3782,7 +3833,7 @@
         if (costInput) {
           costInput.value = baseCost;
         }
-        console.log("-----proximityResult", proximityResult);
+
         if (costDisplay) {
           // Show proximity modifier info if applicable
           let displayText = `Custo Base: ${baseCost}`;
@@ -3850,18 +3901,22 @@
       }
 
       // Update dice display based on selected essences
+      // Update dice display based on selected essence quantities
       function updateFinalDiceDisplay() {
-        const essenceCheckboxes = document.querySelectorAll(
-          ".essence-checkbox:checked"
-        );
+        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        const essenceQuantities = {};
 
-        const selectedEssences = Array.from(essenceCheckboxes).map(
-          (checkbox) => checkbox.value
-        );
+        // Collect essence quantities
+        essenceQuantityInputs.forEach((input) => {
+          const essenceId = input.dataset.essenceId;
+          const quantity = parseInt(input.value) || 0;
+          if (quantity > 0) {
+            essenceQuantities[essenceId] = quantity;
+          }
+        });
 
         // Create temporary magic to calculate dice
-        const tempMagic = new Magic("temp");
-        tempMagic.selectedEssences = selectedEssences;
+        const tempMagic = new Magic("temp", {}, essenceQuantities);
 
         const finalDice = tempMagic.getFinalDice();
         const finalDiceDisplay = tempMagic.getFinalDiceDisplay();
@@ -3889,9 +3944,7 @@
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
         );
-        const essenceCheckboxes = document.querySelectorAll(
-          ".essence-checkbox:checked"
-        );
+        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
 
         if (!nameInput || !costInput || !diceInput) {
           alert("Erro: Elementos de entrada não encontrados.");
@@ -3902,10 +3955,15 @@
         const baseCost = parseInt(costInput.value) || 1;
         const dice = diceInput.value.trim() || null;
 
-        // Collect selected essences
-        const selectedEssences = Array.from(essenceCheckboxes).map(
-          (cb) => cb.value
-        );
+        // Collect essence quantities
+        const essenceQuantities = {};
+        essenceQuantityInputs.forEach((input) => {
+          const essenceId = input.dataset.essenceId;
+          const quantity = parseInt(input.value) || 0;
+          if (quantity > 0) {
+            essenceQuantities[essenceId] = quantity;
+          }
+        });
 
         // Collect component selections
         const componentSelections = {};
@@ -3921,7 +3979,7 @@
           magicManager.addMagicWithEssences(
             name,
             componentSelections,
-            selectedEssences,
+            essenceQuantities,
             baseCost,
             dice
           )
@@ -3948,8 +4006,8 @@
             }
           });
 
-          // Reset all essence checkboxes
-          essenceCheckboxes.forEach((checkbox) => (checkbox.checked = false));
+          // Reset all essence quantity inputs
+          essenceQuantityInputs.forEach((input) => (input.value = "0"));
 
           // Update base cost display
           updateBaseCostFromEssences();
