@@ -3701,8 +3701,21 @@
           nameInput.value = "";
           costInput.value = "1";
 
-          // Reset all component selects
-          componentSelects.forEach((select) => (select.value = ""));
+          // Reset all component selects to default values
+          componentSelects.forEach((select) => {
+            const fieldId = select.dataset.fieldId;
+            const field = magicManager.componentFields.find(
+              (f) => f.id === fieldId
+            );
+
+            if (field && field.required && field.options.length > 0) {
+              // Set required fields to their first option
+              select.value = field.options[0].id;
+            } else {
+              // Set optional fields to empty
+              select.value = "";
+            }
+          });
 
           // Reset all essence checkboxes
           essenceCheckboxes.forEach((checkbox) => (checkbox.checked = false));
