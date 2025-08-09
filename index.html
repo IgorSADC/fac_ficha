@@ -376,6 +376,114 @@
         margin-bottom: 5px;
       }
 
+      /* Essence Info Popup Styles */
+      .essence-info-btn {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 10px;
+        padding: 0;
+        margin-left: 2px;
+        vertical-align: super;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        line-height: 1;
+        font-weight: bold;
+      }
+
+      .essence-info-btn:hover {
+        color: #0056b3;
+        text-decoration: underline;
+      }
+
+      .essence-info-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        max-width: 400px;
+        min-width: 300px;
+        padding: 20px;
+        display: none;
+      }
+
+      .essence-info-popup.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .essence-info-popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .essence-info-popup-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+      }
+
+      .essence-info-popup-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+
+      .essence-info-popup-close:hover {
+        background-color: #f0f0f0;
+        color: #333;
+      }
+
+      .essence-info-popup-content {
+        color: #555;
+        line-height: 1.5;
+        font-size: 14px;
+      }
+
+      .essence-info-popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+
+      .essence-info-popup-overlay.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
       .magic-essences {
         font-size: 12px;
         color: #6c757d;
@@ -3139,8 +3247,20 @@
           id: "energetico",
           name: "Energético",
           essences: [
-            { id: "ignis", name: "Ignis", cost: 1, dice: "1d4" },
-            { id: "fax", name: "Fax", cost: 2, dice: "1d6" },
+            {
+              id: "ignis",
+              name: "Ignis",
+              cost: 1,
+              dice: "1d4",
+              info: " A essência de Ignis é a primeira essência disponível no hemisfério de energia, associada diretamente com a ideia de energia térmica, implicando no ganho de calor e até mesmo criação de plasma na forma de labaredas e chamas.<h3>Condições:</h3> <span>incendiado (3)</span> <br><h3>Efeitos:</h3> <span>Luz, brilho, aquecimento, ignição, fervura, derretimento, descongelamento.</span>",
+            },
+            {
+              id: "fax",
+              name: "Fax",
+              cost: 2,
+              dice: "1d6",
+              info: "Fax é a segunda essência pertencente ao hemisfério de energia, ela é associada a energia de natureza eletromagnética, seja pela excitação de elétrons que geram raios, tão bem como formação de campos que podem manipular bússolas ou outros aparelhos.<h3>Condições:</h3> <span>Incendiado (1), atordoado (1), cego (1)</span> <br><h3>Efeitos:</h3> <span>Explosão, energia, raios, luz.</span>",
+            },
             { id: "potentia", name: "Potentia", cost: 2, dice: "1d10" },
             { id: "kinetica", name: "Kinetica", cost: 2, dice: "1d6" },
             { id: "anarchia", name: "Anarchia", cost: 3 },
@@ -3655,8 +3775,16 @@
                     (essence) => `
                   <div class="form-check form-check-inline essence-quantity-container d-flex align-items-center">
                     <div class="d-flex align-items-center">
-                      <label class="form-check-label essence-label me-2" for="essence-${essence.id}">
-                        ${essence.name} (${essence.cost})
+                      <label class="form-check-label essence-label me-2" for="essence-${
+                        essence.id
+                      }">
+                        ${essence.name} (${essence.cost})${
+                      essence.info
+                        ? `<button class="essence-info-btn" 
+                                               onclick="showEssenceInfo('${essence.id}', '${essence.name}', \`${essence.info}\`)" 
+                                               title="Ver informações sobre ${essence.name}">ℹ</button>`
+                        : ""
+                    }
                       </label>
                       <input class="form-check-input essence-checkbox me-2" 
                              type="checkbox" 
@@ -3672,7 +3800,9 @@
                              max="10"
                              data-essence-id="${essence.id}"
                              onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
-                             title="Quantidade de ${essence.name} (custo: ${essence.cost} cada)"
+                             title="Quantidade de ${essence.name} (custo: ${
+                      essence.cost
+                    } cada)"
                              disabled>
                     </div>
                   </div>
@@ -3975,11 +4105,14 @@
 
       // Function to clear essence selection state
       function clearEssenceSelectionState() {
-        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        const essenceQuantityInputs =
+          document.querySelectorAll(".essence-quantity");
         essenceQuantityInputs.forEach((input) => {
           const essenceId = input.dataset.essenceId;
-          const checkbox = document.getElementById(`essence-checkbox-${essenceId}`);
-          
+          const checkbox = document.getElementById(
+            `essence-checkbox-${essenceId}`
+          );
+
           if (checkbox) {
             checkbox.checked = false;
             input.value = 0;
@@ -4232,7 +4365,7 @@
 
             // Only reset quantity to 0, keep checkboxes and enabled state as they are
             input.value = "0";
-            
+
             // If checkbox is unchecked, keep input disabled; if checked, keep it enabled
             if (checkbox && !checkbox.checked) {
               input.disabled = true;
@@ -4357,6 +4490,68 @@
           }
         }
       }
+
+      // Essence info popup functions
+      function showEssenceInfo(essenceId, essenceName, essenceInfo) {
+        // Create overlay if it doesn't exist
+        let overlay = document.getElementById("essence-info-overlay");
+        if (!overlay) {
+          overlay = document.createElement("div");
+          overlay.id = "essence-info-overlay";
+          overlay.className = "essence-info-popup-overlay";
+          overlay.onclick = hideEssenceInfo;
+          document.body.appendChild(overlay);
+        }
+
+        // Create popup if it doesn't exist
+        let popup = document.getElementById("essence-info-popup");
+        if (!popup) {
+          popup = document.createElement("div");
+          popup.id = "essence-info-popup";
+          popup.className = "essence-info-popup";
+          document.body.appendChild(popup);
+        }
+
+        // Set popup content
+        popup.innerHTML = `
+          <div class="essence-info-popup-header">
+            <h3 class="essence-info-popup-title">${essenceName}</h3>
+            <button class="essence-info-popup-close" onclick="hideEssenceInfo()" title="Fechar">×</button>
+          </div>
+          <div class="essence-info-popup-content">
+            ${essenceInfo}
+          </div>
+        `;
+
+        // Show overlay and popup
+        overlay.classList.add("show");
+        popup.classList.add("show");
+
+        // Prevent body scroll
+        document.body.style.overflow = "hidden";
+      }
+
+      function hideEssenceInfo() {
+        const overlay = document.getElementById("essence-info-overlay");
+        const popup = document.getElementById("essence-info-popup");
+
+        if (overlay) {
+          overlay.classList.remove("show");
+        }
+        if (popup) {
+          popup.classList.remove("show");
+        }
+
+        // Restore body scroll
+        document.body.style.overflow = "";
+      }
+
+      // Close popup with Escape key
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          hideEssenceInfo();
+        }
+      });
     </script>
   </body>
 </html>
