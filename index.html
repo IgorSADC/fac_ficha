@@ -256,6 +256,26 @@
         color: #c82333;
       }
 
+      .magic-roll-btn {
+        margin-left: 10px;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+
+      .magic-roll-btn:hover {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+      }
+
+      .magic-cost-breakdown {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
       #magic-list-container {
         background: #f8f9fa;
       }
@@ -655,6 +675,23 @@
                       >
                         Custo Final: 1
                       </span>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="magic-dice-input" class="form-label"
+                      >Dados Finais</label
+                    >
+                    <div class="d-flex gap-2 align-items-center">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="magic-dice-input"
+                        placeholder="Nenhum dado"
+                        title="Dados calculados automaticamente pelas essências. Você pode editar se necessário."
+                      />
+                      <small class="text-muted"
+                        >Calculado automaticamente, editável</small
+                      >
                     </div>
                   </div>
                   <button
@@ -2748,13 +2785,15 @@
           name,
           componentSelections = {},
           selectedEssences = [],
-          baseCost = null
+          baseCost = null,
+          dice = null
         ) {
           this.id = Date.now() + Math.random(); // Simple unique ID
           this.name = name;
           this.componentSelections = componentSelections; // Object with fieldId: optionId
           this.selectedEssences = selectedEssences; // Array of essence IDs
           this.baseCost = baseCost || this.calculateBaseCostFromEssences();
+          this.dice = dice || this.getFinalDice(); // Final dice string
           this.createdAt = new Date();
         }
 
@@ -2807,6 +2846,57 @@
           });
 
           return Math.ceil(this.baseCost * totalModifier);
+        }
+
+        // Calculate final dice from selected essences
+        getFinalDice() {
+          if (!this.selectedEssences || this.selectedEssences.length === 0) {
+            return "0";
+          }
+
+          const diceMap = {};
+
+          // Collect all dice from selected essences
+          this.selectedEssences.forEach((essenceId) => {
+            for (let hemisphere of essencesConfig) {
+              const essence = hemisphere.essences.find(
+                (e) => e.id === essenceId
+              );
+              if (essence && essence.dice) {
+                // Parse dice (e.g., "1d4" -> {count: 1, sides: 4})
+                const diceMatch = essence.dice.match(/(\d+)d(\d+)/);
+                if (diceMatch) {
+                  const count = parseInt(diceMatch[1]);
+                  const sides = parseInt(diceMatch[2]);
+                  const diceType = `d${sides}`;
+
+                  if (diceMap[diceType]) {
+                    diceMap[diceType] += count;
+                  } else {
+                    diceMap[diceType] = count;
+                  }
+                }
+                break;
+              }
+            }
+          });
+
+          // Format final dice string
+          const diceStrings = Object.keys(diceMap)
+            .sort((a, b) => {
+              const aSize = parseInt(a.substring(1));
+              const bSize = parseInt(b.substring(1));
+              return bSize - aSize; // Sort descending by dice size
+            })
+            .map((diceType) => `${diceMap[diceType]}${diceType}`);
+
+          return diceStrings.length > 0 ? diceStrings.join(" + ") : "0";
+        }
+
+        // Get final dice as display string
+        getFinalDiceDisplay() {
+          const finalDice = this.getFinalDice();
+          return finalDice === "0" ? "Nenhum dado" : finalDice;
         }
 
         // Get selected essences as display string
@@ -2900,6 +2990,7 @@
             componentSelections: this.componentSelections,
             selectedEssences: this.selectedEssences,
             baseCost: this.baseCost,
+            dice: this.dice,
             createdAt: this.createdAt.toISOString(),
           };
         }
@@ -2910,7 +3001,8 @@
             data.name,
             data.componentSelections || {},
             data.selectedEssences || [],
-            data.baseCost || 1
+            data.baseCost || 1,
+            data.dice || null
           );
           magic.id = data.id;
           magic.createdAt = new Date(data.createdAt);
@@ -2924,10 +3016,10 @@
           id: "energetico",
           name: "Energético",
           essences: [
-            { id: "ignis", name: "Ignis", cost: 1 },
-            { id: "fax", name: "Fax", cost: 2 },
-            { id: "potentia", name: "Potentia", cost: 2 },
-            { id: "kinetica", name: "Kinetica", cost: 2 },
+            { id: "ignis", name: "Ignis", cost: 1, dice: "1d4" },
+            { id: "fax", name: "Fax", cost: 2, dice: "1d6" },
+            { id: "potentia", name: "Potentia", cost: 2, dice: "1d10" },
+            { id: "kinetica", name: "Kinetica", cost: 2, dice: "1d6" },
             { id: "anarchia", name: "Anarchia", cost: 3 },
           ],
         },
@@ -2936,10 +3028,10 @@
           name: "Material",
           essences: [
             { id: "tatio", name: "Tatio", cost: 1 },
-            { id: "aqua", name: "Aqua", cost: 2 },
-            { id: "terra", name: "Terra", cost: 2 },
-            { id: "aer", name: "Aer", cost: 2 },
-            { id: "metallum", name: "Metallum", cost: 4 },
+            { id: "aqua", name: "Aqua", cost: 2, dice: "1d8" },
+            { id: "terra", name: "Terra", cost: 2, dice: "1d4" },
+            { id: "aer", name: "Aer", cost: 2, dice: "1d4" },
+            { id: "metallum", name: "Metallum", cost: 4, dice: "1d12" },
           ],
         },
         {
@@ -2968,9 +3060,9 @@
           id: "vida",
           name: "Vida",
           essences: [
-            { id: "vita", name: "Vita", cost: 1 },
+            { id: "vita", name: "Vita", cost: 1, dice: "1d4" },
             { id: "roratio", name: "Roratio", cost: 2 },
-            { id: "puri", name: "Puri", cost: 2 },
+            { id: "puri", name: "Puri", cost: 2, dice: "1d6" },
             { id: "bene", name: "Bene", cost: 5 },
             { id: "renatio", name: "Renatio", cost: 3 },
           ],
@@ -2981,9 +3073,9 @@
           essences: [
             { id: "pest", name: "Pest", cost: 4 },
             { id: "infirmi", name: "Infirmi", cost: 2 },
-            { id: "corruptio", name: "Corruptio", cost: 4 },
+            { id: "corruptio", name: "Corruptio", cost: 4, dice: "1d8" },
             { id: "maledictio", name: "Maledictio", cost: 2 },
-            { id: "necro", name: "Necro", cost: 5 },
+            { id: "necro", name: "Necro", cost: 5, dice: "1d8" },
           ],
         },
       ];
@@ -3291,7 +3383,8 @@
           name,
           componentSelections,
           selectedEssences,
-          baseCost = 1
+          baseCost = 1,
+          dice = null
         ) {
           if (!name || !name.trim()) {
             alert("Por favor, digite um nome para a magia.");
@@ -3322,7 +3415,8 @@
             name.trim(),
             componentSelections,
             selectedEssences,
-            baseCost
+            baseCost,
+            dice
           );
           this.magics.push(magic);
           this.saveMagicsToStorage();
@@ -3419,6 +3513,7 @@
             <div class="mt-2">
               <span id="calculated-base-cost" class="badge bg-info">Custo Base: 1</span>
               <span id="calculated-final-cost" class="badge bg-success ms-2">Custo Final: 1</span>
+              <span id="calculated-final-dice" class="badge bg-warning ms-2">Dados: Nenhum dado</span>
             </div>
           `;
           container.appendChild(headerDiv);
@@ -3440,7 +3535,7 @@
                            type="checkbox" 
                            id="essence-${essence.id}" 
                            value="${essence.id}"
-                           onchange="updateBaseCostFromEssences()">
+                           onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()">
                     <label class="form-check-label" for="essence-${essence.id}">
                       ${essence.name} (${essence.cost})
                     </label>
@@ -3507,6 +3602,9 @@
           );
           const essencesDisplay = magic.getEssencesDisplay();
           const proximityDetails = magic.getHemisphereProximityDetails();
+          const diceDisplay = magic.dice || magic.getFinalDiceDisplay();
+          const hasDice =
+            diceDisplay && diceDisplay !== "Nenhum dado" && diceDisplay !== "0";
 
           let proximityInfo = "";
           if (proximityDetails.modifier > 1.0) {
@@ -3516,6 +3614,18 @@
                   2
                 )}</small>
               </div>
+            `;
+          }
+
+          // Create roll button if dice are available
+          let rollButton = "";
+          if (hasDice) {
+            rollButton = `
+              <button class="magic-roll-btn btn btn-sm btn-outline-primary" 
+                      onclick="rollMagicDice(${magic.id})" 
+                      title="Rolar dados da magia">
+                🎲 Rolar
+              </button>
             `;
           }
 
@@ -3541,6 +3651,10 @@
               <div class="magic-cost-breakdown">
                 <span class="magic-base-cost">Base: ${magic.baseCost}</span>
                 <span class="magic-final-cost">Final: ${finalCost}</span>
+                <span class="magic-dice">Dados: ${this.escapeHtml(
+                  diceDisplay
+                )}</span>
+                ${rollButton}
               </div>
             </div>
           `;
@@ -3730,12 +3844,48 @@
         if (finalCostInput) {
           finalCostInput.textContent = `Custo Final: ${finalCost}`;
         }
+
+        // Update dice display
+        updateFinalDiceDisplay();
+      }
+
+      // Update dice display based on selected essences
+      function updateFinalDiceDisplay() {
+        const essenceCheckboxes = document.querySelectorAll(
+          ".essence-checkbox:checked"
+        );
+
+        const selectedEssences = Array.from(essenceCheckboxes).map(
+          (checkbox) => checkbox.value
+        );
+
+        // Create temporary magic to calculate dice
+        const tempMagic = new Magic("temp");
+        tempMagic.selectedEssences = selectedEssences;
+
+        const finalDice = tempMagic.getFinalDice();
+        const finalDiceDisplay = tempMagic.getFinalDiceDisplay();
+
+        const finalDiceDisplayElement = document.getElementById(
+          "calculated-final-dice"
+        );
+        const diceInput = document.getElementById("magic-dice-input");
+
+        if (finalDiceDisplayElement) {
+          finalDiceDisplayElement.textContent = `Dados: ${finalDiceDisplay}`;
+        }
+
+        if (diceInput) {
+          diceInput.value = finalDice === "0" ? "" : finalDice;
+          diceInput.placeholder = finalDice === "0" ? "Nenhum dado" : finalDice;
+        }
       }
 
       // Functions for UI interaction
       function addMagicSpell() {
         const nameInput = document.getElementById("magic-name-input");
         const costInput = document.getElementById("magic-cost-input");
+        const diceInput = document.getElementById("magic-dice-input");
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
         );
@@ -3743,13 +3893,14 @@
           ".essence-checkbox:checked"
         );
 
-        if (!nameInput || !costInput) {
+        if (!nameInput || !costInput || !diceInput) {
           alert("Erro: Elementos de entrada não encontrados.");
           return;
         }
 
         const name = nameInput.value;
         const baseCost = parseInt(costInput.value) || 1;
+        const dice = diceInput.value.trim() || null;
 
         // Collect selected essences
         const selectedEssences = Array.from(essenceCheckboxes).map(
@@ -3771,12 +3922,15 @@
             name,
             componentSelections,
             selectedEssences,
-            baseCost
+            baseCost,
+            dice
           )
         ) {
           // Clear inputs on success
           nameInput.value = "";
           costInput.value = "1";
+          diceInput.value = "";
+          diceInput.placeholder = "Nenhum dado";
 
           // Reset all component selects to default values
           componentSelects.forEach((select) => {
@@ -3813,6 +3967,83 @@
         if (event.key === "Enter") {
           event.preventDefault();
           addMagicSpell();
+        }
+      }
+
+      // Function to roll magic dice
+      function rollMagicDice(magicId) {
+        if (!magicManager) return;
+
+        const magic = magicManager.magics.find((m) => m.id === magicId);
+        if (!magic) return;
+
+        const diceString = magic.dice || magic.getFinalDice();
+        if (!diceString || diceString === "0") {
+          alert("Esta magia não possui dados para rolar.");
+          return;
+        }
+
+        // Parse and roll the dice
+        const rollResult = parseDiceStringAndRoll(diceString);
+
+        if (rollResult.error) {
+          alert(`Erro ao rolar dados: ${rollResult.error}`);
+          return;
+        }
+
+        // Show roll result
+        const resultMessage = `🎲 ${
+          magic.name
+        }\n\nDados: ${diceString}\nResultado: ${
+          rollResult.total
+        }\n\nDetalhes: ${rollResult.details.join(", ")}`;
+        alert(resultMessage);
+      }
+
+      // Function to parse dice string and roll dice
+      function parseDiceStringAndRoll(diceString) {
+        try {
+          // Split by + to handle multiple dice types (e.g., "2d4 + 1d6")
+          const diceParts = diceString.split("+").map((part) => part.trim());
+          let total = 0;
+          const details = [];
+
+          for (const part of diceParts) {
+            // Parse each dice part (e.g., "2d4")
+            const diceMatch = part.match(/(\d+)d(\d+)/);
+            if (!diceMatch) {
+              return { error: `Formato de dado inválido: ${part}` };
+            }
+
+            const count = parseInt(diceMatch[1]);
+            const sides = parseInt(diceMatch[2]);
+
+            if (count <= 0 || sides <= 0) {
+              return { error: `Valores inválidos: ${count}d${sides}` };
+            }
+
+            // Roll the dice
+            const rolls = [];
+            let partTotal = 0;
+            for (let i = 0; i < count; i++) {
+              const roll = Math.floor(Math.random() * sides) + 1;
+              rolls.push(roll);
+              partTotal += roll;
+            }
+
+            total += partTotal;
+            details.push(
+              `${count}d${sides}: [${rolls.join(", ")}] = ${partTotal}`
+            );
+          }
+
+          return {
+            total: total,
+            details: details,
+            error: null,
+          };
+        } catch (error) {
+          return { error: `Erro ao processar dados: ${error.message}` };
         }
       }
 
