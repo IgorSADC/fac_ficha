@@ -638,16 +638,24 @@
                     <label for="magic-cost-input" class="form-label"
                       >Custo Base (Calculado)</label
                     >
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="magic-cost-input"
-                      placeholder="1"
-                      value="1"
-                      min="1"
-                      readonly
-                      title="O custo base é calculado automaticamente pelas essências selecionadas"
-                    />
+                    <div class="d-flex gap-2 align-items-center">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="magic-cost-input"
+                        placeholder="1"
+                        value="1"
+                        min="1"
+                        readonly
+                        title="O custo base é calculado automaticamente pelas essências selecionadas"
+                      />
+                      <span
+                        id="magic-final-cost-input"
+                        class="badge bg-success fs-6"
+                      >
+                        Custo Final: 1
+                      </span>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -2287,6 +2295,11 @@
           magicManager.renderComponentOptions();
           magicManager.renderEssencesSelection();
           magicManager.renderMagicList();
+
+          // Initialize final cost display after components are rendered
+          setTimeout(() => {
+            updateFinalCostDisplay();
+          }, 100);
         }
       });
 
@@ -2925,7 +2938,7 @@
             { id: "tatio", name: "Tatio", cost: 1 },
             { id: "aqua", name: "Aqua", cost: 2 },
             { id: "terra", name: "Terra", cost: 2 },
-            { id: "era", name: "Era", cost: 2 },
+            { id: "aer", name: "Aer", cost: 2 },
             { id: "metallum", name: "Metallum", cost: 4 },
           ],
         },
@@ -3221,6 +3234,17 @@
                 { id: "seletivo", name: "Seletivo", costModifier: 4.0 },
               ],
             },
+            {
+              id: "concentracao",
+              title: "Concentração",
+              description: "Nível de concentração necessário para a magia",
+              required: true,
+              options: [
+                { id: "baixa", name: "Instantâneo", costModifier: 1.4 },
+                { id: "moderado", name: "Moderado", costModifier: 1.0 },
+                { id: "pesado", name: "Pesado", costModifier: 0.8 },
+              ],
+            },
           ];
 
           this.componentFields = defaultComponentFieldsConfig.map((config) =>
@@ -3348,7 +3372,8 @@
               <select class="form-control magic-component-select" 
                       id="${selectId}" 
                       data-field-id="${field.id}"
-                      title="${field.description}">
+                      title="${field.description}"
+                      onchange="updateFinalCostDisplay()">
                 ${
                   field.required
                     ? ""
@@ -3393,6 +3418,7 @@
             <small class="text-muted">Selecione as essências para calcular o custo base da magia.</small>
             <div class="mt-2">
               <span id="calculated-base-cost" class="badge bg-info">Custo Base: 1</span>
+              <span id="calculated-final-cost" class="badge bg-success ms-2">Custo Final: 1</span>
             </div>
           `;
           container.appendChild(headerDiv);
@@ -3652,6 +3678,57 @@
             )} por hemisférios diferentes)`;
           }
           costDisplay.textContent = displayText;
+        }
+
+        // Also update final cost when base cost changes
+        updateFinalCostDisplay();
+      }
+
+      // Function to calculate and update final cost display
+      function updateFinalCostDisplay() {
+        // Get base cost
+        const costInput = document.getElementById("magic-cost-input");
+        const baseCost = costInput ? parseInt(costInput.value) || 1 : 1;
+
+        // Get component selections
+        const componentSelects = document.querySelectorAll(
+          ".magic-component-select"
+        );
+
+        let totalModifier = 1.0;
+
+        // Apply modifiers from each field selection
+        componentSelects.forEach((select) => {
+          const fieldId = select.dataset.fieldId;
+          const optionId = select.value;
+
+          if (!optionId) return;
+
+          const field = magicManager.componentFields.find(
+            (f) => f.id === fieldId
+          );
+          if (!field) return;
+
+          const option = field.options.find((o) => o.id === optionId);
+          if (option && option.costModifier) {
+            totalModifier *= option.costModifier;
+          }
+        });
+
+        const finalCost = Math.ceil(baseCost * totalModifier);
+        const finalCostDisplay = document.getElementById(
+          "calculated-final-cost"
+        );
+        const finalCostInput = document.getElementById(
+          "magic-final-cost-input"
+        );
+
+        if (finalCostDisplay) {
+          finalCostDisplay.textContent = `Custo Final: ${finalCost}`;
+        }
+
+        if (finalCostInput) {
+          finalCostInput.textContent = `Custo Final: ${finalCost}`;
         }
       }
 
