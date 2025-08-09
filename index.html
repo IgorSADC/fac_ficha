@@ -679,83 +679,83 @@
                 <div class="col-md-6">
                   <div class="magic-creation-form">
                     <h6 class="mb-3">Adicionar Nova Magia</h6>
-                  <div class="mb-3">
-                    <label for="magic-name-input" class="form-label"
-                      >Nome da Magia</label
-                    >
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="magic-name-input"
-                      placeholder="Digite o nome da magia..."
-                      onkeypress="handleMagicInputKeypress(event)"
-                    />
-                  </div>
-                  <div class="mb-3">
-                    <div
-                      id="magic-essences-container"
-                      class="p-2 bg-light border rounded"
-                    >
-                      <!-- Essences selection will be populated by JavaScript -->
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Componentes da Magia</label>
-                    <div id="magic-components-container" class="p-2">
-                      <!-- Component select fields will be populated by JavaScript -->
-                    </div>
-                    <small class="text-muted"
-                      >Configure os componentes para a magia. Campos marcados
-                      com * são obrigatórios.</small
-                    >
-                  </div>
-                  <div class="mb-3">
-                    <label for="magic-cost-input" class="form-label"
-                      >Custo Base (Calculado)</label
-                    >
-                    <div class="d-flex gap-2 align-items-center">
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="magic-cost-input"
-                        placeholder="1"
-                        value="1"
-                        min="1"
-                        readonly
-                        title="O custo base é calculado automaticamente pelas essências selecionadas"
-                      />
-                      <span
-                        id="magic-final-cost-input"
-                        class="badge bg-success fs-6"
+                    <div class="mb-3">
+                      <label for="magic-name-input" class="form-label"
+                        >Nome da Magia</label
                       >
-                        Custo Final: 1
-                      </span>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="magic-dice-input" class="form-label"
-                      >Dados Finais</label
-                    >
-                    <div class="d-flex gap-2 align-items-center">
                       <input
                         type="text"
                         class="form-control"
-                        id="magic-dice-input"
-                        placeholder="Nenhum dado"
-                        title="Dados calculados automaticamente pelas essências. Você pode editar se necessário."
+                        id="magic-name-input"
+                        placeholder="Digite o nome da magia..."
+                        onkeypress="handleMagicInputKeypress(event)"
                       />
+                    </div>
+                    <div class="mb-3">
+                      <div
+                        id="magic-essences-container"
+                        class="p-2 bg-light border rounded"
+                      >
+                        <!-- Essences selection will be populated by JavaScript -->
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">Componentes da Magia</label>
+                      <div id="magic-components-container" class="p-2">
+                        <!-- Component select fields will be populated by JavaScript -->
+                      </div>
                       <small class="text-muted"
-                        >Calculado automaticamente, editável</small
+                        >Configure os componentes para a magia. Campos marcados
+                        com * são obrigatórios.</small
                       >
                     </div>
-                  </div>
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="addMagicSpell()"
-                  >
-                    ➕ Adicionar Magia
-                  </button>
+                    <div class="mb-3">
+                      <label for="magic-cost-input" class="form-label"
+                        >Custo Base (Calculado)</label
+                      >
+                      <div class="d-flex gap-2 align-items-center">
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="magic-cost-input"
+                          placeholder="1"
+                          value="1"
+                          min="1"
+                          readonly
+                          title="O custo base é calculado automaticamente pelas essências selecionadas"
+                        />
+                        <span
+                          id="magic-final-cost-input"
+                          class="badge bg-success fs-6"
+                        >
+                          Custo Final: 1
+                        </span>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="magic-dice-input" class="form-label"
+                        >Dados Finais</label
+                      >
+                      <div class="d-flex gap-2 align-items-center">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="magic-dice-input"
+                          placeholder="Nenhum dado"
+                          title="Dados calculados automaticamente pelas essências. Você pode editar se necessário."
+                        />
+                        <small class="text-muted"
+                          >Calculado automaticamente, editável</small
+                        >
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      onclick="addMagicSpell()"
+                    >
+                      ➕ Adicionar Magia
+                    </button>
                   </div>
                 </div>
 
@@ -763,10 +763,7 @@
                 <div class="col-md-6">
                   <div class="magic-list-section">
                     <h6 class="mb-3">Magias Conhecidas</h6>
-                    <div
-                      id="magic-list-container"
-                      class="border rounded p-2"
-                    >
+                    <div id="magic-list-container" class="border rounded p-2">
                       <p class="text-muted text-center" id="no-magic-message">
                         Nenhuma magia adicionada ainda.
                       </p>
@@ -1967,6 +1964,9 @@
             magicManager.renderMagicList();
           }
 
+          // Clear essence selection state
+          clearEssenceSelectionState();
+
           console.log("All saved character data cleared");
           alert("Todos os dados salvos foram removidos.");
         } catch (error) {
@@ -2066,6 +2066,9 @@
         if (magicManager) {
           data.magics = magicManager.getMagicsData();
         }
+
+        // Collect current essence selection state
+        data.currentEssenceSelection = getCurrentEssenceSelectionState();
 
         return data;
       }
@@ -2229,6 +2232,11 @@
           magicManager.loadMagicsData(data.magics);
         }
 
+        // Load current essence selection state
+        if (data.currentEssenceSelection) {
+          loadEssenceSelectionState(data.currentEssenceSelection);
+        }
+
         // Update dice selector availability based on loaded level
         updateDiceSelectorAvailability();
       }
@@ -2268,6 +2276,21 @@
             input[data-attribute]:focus {
                 border-color: #007bff;
                 box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+            }
+            .essence-quantity:disabled {
+                opacity: 0.5 !important;
+                background-color: #f8f9fa !important;
+                cursor: not-allowed !important;
+            }
+            .essence-quantity-container {
+                margin-bottom: 8px;
+            }
+            .essence-checkbox {
+                margin-right: 8px;
+            }
+            .essence-label {
+                min-width: 120px;
+                font-weight: 500;
             }
         `;
       document.head.appendChild(style);
@@ -2386,8 +2409,21 @@
           magicManager.renderEssencesSelection();
           magicManager.renderMagicList();
 
-          // Initialize final cost display after components are rendered
+          // Apply saved essence selection state immediately after rendering essences
           setTimeout(() => {
+            // Load saved character data to get essence selection state
+            try {
+              const savedData = localStorage.getItem("fac_character_sheet");
+              if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.currentEssenceSelection) {
+                  loadEssenceSelectionState(data.currentEssenceSelection);
+                }
+              }
+            } catch (error) {
+              console.error("Error loading essence selection state:", error);
+            }
+
             updateFinalCostDisplay();
           }, 100);
         }
@@ -3419,8 +3455,8 @@
               description: "Nível de concentração necessário para a magia",
               required: true,
               options: [
-                { id: "baixa", name: "Instantâneo", costModifier: 1.4 },
                 { id: "moderado", name: "Moderado", costModifier: 1.0 },
+                { id: "baixa", name: "Instantâneo", costModifier: 1.4 },
                 { id: "pesado", name: "Pesado", costModifier: 0.8 },
               ],
             },
@@ -3617,19 +3653,28 @@
                 ${hemisphere.essences
                   .map(
                     (essence) => `
-                  <div class="form-check form-check-inline essence-quantity-container">
-                    <label class="form-check-label essence-label" for="essence-${essence.id}">
-                      ${essence.name} (${essence.cost})
-                    </label>
-                    <input class="form-control essence-quantity" 
-                           type="number" 
-                           id="essence-${essence.id}" 
-                           value="0"
-                           min="0"
-                           max="10"
-                           data-essence-id="${essence.id}"
-                           onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
-                           title="Quantidade de ${essence.name} (custo: ${essence.cost} cada)">
+                  <div class="form-check form-check-inline essence-quantity-container d-flex align-items-center">
+                    <div class="d-flex align-items-center">
+                      <label class="form-check-label essence-label me-2" for="essence-${essence.id}">
+                        ${essence.name} (${essence.cost})
+                      </label>
+                      <input class="form-check-input essence-checkbox me-2" 
+                             type="checkbox" 
+                             id="essence-checkbox-${essence.id}" 
+                             data-essence-id="${essence.id}"
+                             onchange="toggleEssenceQuantity('${essence.id}')"
+                             title="Habilitar seleção de ${essence.name}">
+                      <input class="form-control essence-quantity" 
+                             type="number" 
+                             id="essence-${essence.id}" 
+                             value="0"
+                             min="0"
+                             max="10"
+                             data-essence-id="${essence.id}"
+                             onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
+                             title="Quantidade de ${essence.name} (custo: ${essence.cost} cada)"
+                             disabled>
+                    </div>
                   </div>
                 `
                   )
@@ -3838,6 +3883,115 @@
       // Global magic manager instance
       let magicManager;
 
+      // Function to toggle essence quantity input based on checkbox state
+      function toggleEssenceQuantity(essenceId) {
+        const checkbox = document.getElementById(
+          `essence-checkbox-${essenceId}`
+        );
+        const quantityInput = document.getElementById(`essence-${essenceId}`);
+
+        if (!checkbox || !quantityInput) return;
+
+        if (checkbox.checked) {
+          // Enable the quantity input and set minimum value to 1
+          quantityInput.disabled = false;
+          quantityInput.value = Math.max(parseInt(quantityInput.value) || 1, 1);
+        } else {
+          // Disable the quantity input and reset value to 0
+          quantityInput.disabled = true;
+          quantityInput.value = 0;
+        }
+
+        // Update calculations after toggling
+        updateBaseCostFromEssences();
+        updateFinalDiceDisplay();
+
+        // Auto-save when essence selection changes
+        clearTimeout(window.saveTimeout);
+        window.saveTimeout = setTimeout(() => {
+          saveCharacterDataToStorage();
+        }, 500);
+      }
+
+      // Function to get current essence selection state
+      function getCurrentEssenceSelectionState() {
+        const essenceSelection = {
+          checkboxStates: {},
+          quantityValues: {},
+        };
+
+        const essenceQuantityInputs =
+          document.querySelectorAll(".essence-quantity");
+        essenceQuantityInputs.forEach((input) => {
+          const essenceId = input.dataset.essenceId;
+          const checkbox = document.getElementById(
+            `essence-checkbox-${essenceId}`
+          );
+
+          if (checkbox) {
+            essenceSelection.checkboxStates[essenceId] = checkbox.checked;
+            essenceSelection.quantityValues[essenceId] =
+              parseInt(input.value) || 0;
+          }
+        });
+
+        return essenceSelection;
+      }
+
+      // Function to load essence selection state
+      function loadEssenceSelectionState(essenceSelection) {
+        if (!essenceSelection) {
+          // If no saved data, leave all checkboxes unchecked and inputs disabled (default state)
+          updateBaseCostFromEssences();
+          updateFinalDiceDisplay();
+          return;
+        }
+
+        // Load checkbox states and quantity values from saved data
+        Object.keys(essenceSelection.checkboxStates || {}).forEach(
+          (essenceId) => {
+            const checkbox = document.getElementById(
+              `essence-checkbox-${essenceId}`
+            );
+            const quantityInput = document.getElementById(
+              `essence-${essenceId}`
+            );
+
+            if (checkbox && quantityInput) {
+              const isChecked = essenceSelection.checkboxStates[essenceId];
+              const quantity = essenceSelection.quantityValues[essenceId] || 0;
+
+              checkbox.checked = isChecked;
+              quantityInput.value = quantity;
+              quantityInput.disabled = !isChecked;
+            }
+          }
+        );
+
+        // Update calculations after loading
+        updateBaseCostFromEssences();
+        updateFinalDiceDisplay();
+      }
+
+      // Function to clear essence selection state
+      function clearEssenceSelectionState() {
+        const essenceQuantityInputs = document.querySelectorAll(".essence-quantity");
+        essenceQuantityInputs.forEach((input) => {
+          const essenceId = input.dataset.essenceId;
+          const checkbox = document.getElementById(`essence-checkbox-${essenceId}`);
+          
+          if (checkbox) {
+            checkbox.checked = false;
+            input.value = 0;
+            input.disabled = true;
+          }
+        });
+
+        // Update calculations after clearing
+        updateBaseCostFromEssences();
+        updateFinalDiceDisplay();
+      }
+
       // Function to update base cost based on selected essences with hemisphere proximity modifiers
       // Function to update base cost based on selected essence quantities
       function updateBaseCostFromEssences() {
@@ -3849,9 +4003,13 @@
         // Calculate base cost from essence quantities
         essenceQuantityInputs.forEach((input) => {
           const essenceId = input.dataset.essenceId;
+          const checkbox = document.getElementById(
+            `essence-checkbox-${essenceId}`
+          );
           const quantity = parseInt(input.value) || 0;
 
-          if (quantity > 0) {
+          // Only consider essences where checkbox is checked and quantity > 0
+          if (checkbox && checkbox.checked && quantity > 0) {
             essenceQuantities[essenceId] = quantity;
 
             for (let hemisphere of essencesConfig) {
@@ -3954,11 +4112,16 @@
           document.querySelectorAll(".essence-quantity");
         const essenceQuantities = {};
 
-        // Collect essence quantities
+        // Collect essence quantities (only from checked essences)
         essenceQuantityInputs.forEach((input) => {
           const essenceId = input.dataset.essenceId;
+          const checkbox = document.getElementById(
+            `essence-checkbox-${essenceId}`
+          );
           const quantity = parseInt(input.value) || 0;
-          if (quantity > 0) {
+
+          // Only include essences where checkbox is checked and quantity > 0
+          if (checkbox && checkbox.checked && quantity > 0) {
             essenceQuantities[essenceId] = quantity;
           }
         });
@@ -4004,12 +4167,17 @@
         const baseCost = parseInt(costInput.value) || 1;
         const dice = diceInput.value.trim() || null;
 
-        // Collect essence quantities
+        // Collect essence quantities (only from checked essences)
         const essenceQuantities = {};
         essenceQuantityInputs.forEach((input) => {
           const essenceId = input.dataset.essenceId;
+          const checkbox = document.getElementById(
+            `essence-checkbox-${essenceId}`
+          );
           const quantity = parseInt(input.value) || 0;
-          if (quantity > 0) {
+
+          // Only include essences where checkbox is checked and quantity > 0
+          if (checkbox && checkbox.checked && quantity > 0) {
             essenceQuantities[essenceId] = quantity;
           }
         });
@@ -4055,8 +4223,21 @@
             }
           });
 
-          // Reset all essence quantity inputs
-          essenceQuantityInputs.forEach((input) => (input.value = "0"));
+          // Reset essence quantity inputs to 0 but keep checkboxes checked
+          essenceQuantityInputs.forEach((input) => {
+            const essenceId = input.dataset.essenceId;
+            const checkbox = document.getElementById(
+              `essence-checkbox-${essenceId}`
+            );
+
+            // Only reset quantity to 0, keep checkboxes and enabled state as they are
+            input.value = "0";
+            
+            // If checkbox is unchecked, keep input disabled; if checked, keep it enabled
+            if (checkbox && !checkbox.checked) {
+              input.disabled = true;
+            }
+          });
 
           // Update base cost display
           updateBaseCostFromEssences();
