@@ -4189,17 +4189,17 @@
         totalCost *= proximityResult.modifier;
 
         // Update the display and input
-        const baseCost = Math.max(Math.ceil(totalCost), 1);
+        const baseCost = totalCost;
         const costInput = document.getElementById("magic-cost-input");
         const costDisplay = document.getElementById("calculated-base-cost");
 
         if (costInput) {
-          costInput.value = baseCost;
+          costInput.value = Number(baseCost).toFixed(2);
         }
 
         if (costDisplay) {
           // Show proximity modifier info if applicable
-          let displayText = `Custo Base: ${baseCost}`;
+          let displayText = `Custo Base: ${Number(baseCost).toFixed(2)}`;
           if (proximityResult.details.length > 0) {
             displayText += ` (×${proximityResult.modifier.toFixed(
               2
