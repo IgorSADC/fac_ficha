@@ -2226,7 +2226,7 @@
         const previousLevel = parseInt(element.dataset.previousLevel) || 0;
         let level = parseInt(element.textContent) || 0;
         if (level < 0) level = 0;
-        if (level > 20) level = 20; // Set a reasonable max level
+        if (level > 24) level = 24; // Set a reasonable max level
         element.textContent = level;
 
         // Store the new level for next comparison
