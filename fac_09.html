@@ -931,61 +931,62 @@
         renderSection(config) {
           const attributeHtml = config.attribute
             ? `
-            <div class="text-center mb-3">
-              <div class="attribute-circle">
-                <div class="attribute-label">${config.attribute.label}</div>
-                <input
-                  type="number"
-                  class="form-control form-control-sm"
-                  style="width: 50px; text-align: center"
-                  value="0"
-                  min="0"
-                  max="3"
-                  data-attribute="${config.attribute.dataAttribute}"
-                  onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
-                />
-              </div>
-              <button class="btn btn-sm btn-outline-primary mt-1" onclick="rollAttribute('${config.attribute.dataAttribute}', '${config.attribute.label}')" title="Rolar ${config.attribute.label}">
-                🎲 Rolar
-              </button>
-            </div>
-          `
+                  <div class="text-center mb-3">
+                    <div class="attribute-circle">
+                      <div class="attribute-label">${config.attribute.label}</div>
+                      <input
+                        type="number"
+                        class="form-control form-control-sm"
+                        style="width: 50px; text-align: center"
+                        value="0"
+                        min="0"
+                        max="3"
+                        data-attribute="${config.attribute.dataAttribute}"
+                        onchange="validateAttributeAndSkills('${config.attribute.dataAttribute}', '${config.sectionId}')"
+                      />
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary mt-1" onclick="rollAttribute('${config.attribute.dataAttribute}', '${config.attribute.label}')" title="Rolar ${config.attribute.label}">
+                      🎲 Rolar
+                    </button>
+                  </div>
+                `
             : "";
 
           console.log("---config");
           console.log(config);
 
           const sectionHtml = `
-                    <div class="skill-${config.sectionId}-section">
-                        ${attributeHtml}
-                        <div class="section-title" onclick="${
-                          config.onClick || "void(0)"
-                        }" style="cursor: ${
+                          <div class="skill-${config.sectionId}-section">
+                              ${attributeHtml}
+                              <div class="section-title" onclick="${
+                                config.onClick || "void(0)"
+                              }" style="cursor: ${
             config.onClick ? "pointer" : "default"
           }">
-                            ${config.label}
-                        </div>
-                        <div class="checkbox-list">
-                            ${this.generateCheckboxes(
-                              config.skills,
-                              config.sectionId
-                            )}
-                            ${
-                              config.prestigios && config.prestigios.length > 0
-                                ? `
-                            <div class="prestigio-divider" style="margin: 15px 0; border-top: 2px solid #007bff; position: relative;">
-                                <span style="background: #f8f9fa; padding: 0 10px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-weight: bold; color: #007bff;">Prestígio</span>
-                            </div>
-                            ${this.generatePrestigioCheckboxes(
-                              config.prestigios,
-                              config.sectionId
-                            )}
-                            `
-                                : ""
-                            }
-                        </div>
-                    </div>
-                `;
+                                  ${config.label}
+                              </div>
+                              <div class="checkbox-list">
+                                  ${this.generateCheckboxes(
+                                    config.skills,
+                                    config.sectionId
+                                  )}
+                                  ${
+                                    config.prestigios &&
+                                    config.prestigios.length > 0
+                                      ? `
+                                  <div class="prestigio-divider" style="margin: 15px 0; border-top: 2px solid #007bff; position: relative;">
+                                      <span style="background: #f8f9fa; padding: 0 10px; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-weight: bold; color: #007bff;">Prestígio</span>
+                                  </div>
+                                  ${this.generatePrestigioCheckboxes(
+                                    config.prestigios,
+                                    config.sectionId
+                                  )}
+                                  `
+                                      : ""
+                                  }
+                              </div>
+                          </div>
+                      `;
           return sectionHtml;
         }
 
@@ -994,12 +995,12 @@
           return skills
             .map(
               (skill, index) => `
-                    <div class="form-check skill-levels" data-skill="${
-                      skill.name
-                    }" data-section="${sectionId}">
-                        <label class="form-check-label skill-name">${
-                          skill.name
-                        }${
+                          <div class="form-check skill-levels" data-skill="${
+                            skill.name
+                          }" data-section="${sectionId}">
+                              <label class="form-check-label skill-name">${
+                                skill.name
+                              }${
                 skill.info
                   ? `<button class="essence-info-btn" onclick="showInfo('skill-${skill.name
                       .replace(/\s+/g, "-")
@@ -1008,29 +1009,29 @@
                     }\`)" title="Informações sobre ${skill.name}">ℹ</button>`
                   : ""
               }</label>
-                        <div class="skill-level-boxes">
-                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_1" data-skill="${
+                              <div class="skill-level-boxes">
+                                  <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_1" data-skill="${
                 skill.name
               }" data-section="${sectionId}" data-level="1" onclick="toggleSkillLevel(this, 1)">
-                            <label class="level-label" for="${sectionId}_${index}_1">1</label>
-                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_2" data-skill="${
+                                  <label class="level-label" for="${sectionId}_${index}_1">1</label>
+                                  <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_2" data-skill="${
                 skill.name
               }" data-section="${sectionId}" data-level="2" onclick="toggleSkillLevel(this, 2)">
-                            <label class="level-label" for="${sectionId}_${index}_2">2</label>
-                            <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_3" data-skill="${
+                                  <label class="level-label" for="${sectionId}_${index}_2">2</label>
+                                  <input class="form-check-input skill-level" type="checkbox" id="${sectionId}_${index}_3" data-skill="${
                 skill.name
               }" data-section="${sectionId}" data-level="3" onclick="toggleSkillLevel(this, 3)">
-                            <label class="level-label" for="${sectionId}_${index}_3">3</label>
-                            <button class="btn btn-xs btn-outline-success ms-2" onclick="rollSkill('${sectionId}', '${
+                                  <label class="level-label" for="${sectionId}_${index}_3">3</label>
+                                  <button class="btn btn-xs btn-outline-success ms-2" onclick="rollSkill('${sectionId}', '${
                 skill.name
               }')" title="Rolar ${
                 skill.name
               }" style="font-size: 10px; padding: 2px 6px;">
-                              🎲
-                            </button>
-                        </div>
-                    </div>
-                `
+                                    🎲
+                                  </button>
+                              </div>
+                          </div>
+                      `
             )
             .join("");
         }
@@ -1054,15 +1055,15 @@
                 : "";
 
               return `
-                    <div class="form-check skill-levels prestigio-skill" data-skill="${prestigio.name}" data-section="${sectionId}">
-                        <label class="form-check-label skill-name" style="color: #007bff; font-weight: bold;">${prestigio.name}${infoButton}</label>
-                        <div class="skill-level-boxes">
-                            <input class="form-check-input prestigio-level" type="checkbox" id="${sectionId}_prestigio_${index}" data-skill="${prestigio.name}" data-section="${sectionId}" data-prestigio="true" onclick="togglePrestigioSkill(this)">
-                            <label class="level-label" for="${sectionId}_prestigio_${index}" style="color: #007bff;">✓</label>
-                            <span class="prestigio-cost" style="font-size: 10px; color: #666; margin-left: 5px;">(1 pt. atributo)</span>
-                        </div>
-                    </div>
-                `;
+                          <div class="form-check skill-levels prestigio-skill" data-skill="${prestigio.name}" data-section="${sectionId}">
+                              <label class="form-check-label skill-name" style="color: #007bff; font-weight: bold;">${prestigio.name}${infoButton}</label>
+                              <div class="skill-level-boxes">
+                                  <input class="form-check-input prestigio-level" type="checkbox" id="${sectionId}_prestigio_${index}" data-skill="${prestigio.name}" data-section="${sectionId}" data-prestigio="true" onclick="togglePrestigioSkill(this)">
+                                  <label class="level-label" for="${sectionId}_prestigio_${index}" style="color: #007bff;">✓</label>
+                                  <span class="prestigio-cost" style="font-size: 10px; color: #666; margin-left: 5px;">(1 pt. atributo)</span>
+                              </div>
+                          </div>
+                      `;
             })
             .join("");
         }
@@ -1088,105 +1089,105 @@
         renderResourceSection(config) {
           const diceSelector = config.diceType
             ? `
-            <div class="col-12 mb-2">
-              <div class="d-flex align-items-center justify-content-center">
-                <label class="form-label me-2 mb-0"><strong>Dado:</strong></label>
-                <select class="form-select form-select-sm dice-selector" style="width: auto;" id="${
-                  config.diceSelectId
-                }" onchange="onDiceTypeChange('${config.resourceName}')">
-                  <option value="d4" ${
-                    config.diceType === "d4" ? "selected" : ""
-                  }>d4</option>
-                  <option value="d6" ${
-                    config.diceType === "d6" ? "selected" : ""
-                  }>d6</option>
-                  <option value="d8" ${
-                    config.diceType === "d8" ? "selected" : ""
-                  }>d8</option>
-                  <option value="d10" ${
-                    config.diceType === "d10" ? "selected" : ""
-                  }>d10</option>
-                  <option value="d12" ${
-                    config.diceType === "d12" ? "selected" : ""
-                  }>d12</option>
-                </select>
-                <button class="btn btn-sm btn-outline-warning ms-2" onclick="rollResourceDice('${
-                  config.resourceName
-                }', '${
+                  <div class="col-12 mb-2">
+                    <div class="d-flex align-items-center justify-content-center">
+                      <label class="form-label me-2 mb-0"><strong>Dado:</strong></label>
+                      <select class="form-select form-select-sm dice-selector" style="width: auto;" id="${
+                        config.diceSelectId
+                      }" onchange="onDiceTypeChange('${config.resourceName}')">
+                        <option value="d4" ${
+                          config.diceType === "d4" ? "selected" : ""
+                        }>d4</option>
+                        <option value="d6" ${
+                          config.diceType === "d6" ? "selected" : ""
+                        }>d6</option>
+                        <option value="d8" ${
+                          config.diceType === "d8" ? "selected" : ""
+                        }>d8</option>
+                        <option value="d10" ${
+                          config.diceType === "d10" ? "selected" : ""
+                        }>d10</option>
+                        <option value="d12" ${
+                          config.diceType === "d12" ? "selected" : ""
+                        }>d12</option>
+                      </select>
+                      <button class="btn btn-sm btn-outline-warning ms-2" onclick="rollResourceDice('${
+                        config.resourceName
+                      }', '${
                 config.diceSelectId
               }')" title="Substituir rolls automáticos por rolls manuais">
-                  🎲 Manual
-                </button>
-              </div>
-            </div>
-          `
+                        🎲 Manual
+                      </button>
+                    </div>
+                  </div>
+                `
             : "";
 
           const resourceHtml = `
-            <div class="col-md-${config.columnSize || 6}">
-              <div class="hp-mana-section">
-                <div class="row">
-                  ${diceSelector}
-                  <div class="col-4">
-                    <label class="form-label"><strong>Base ${
-                      config.resourceName
-                    }</strong></label>
-                    <input
-                      type="number"
-                      class="form-control large-input"
-                      id="${config.baseId}"
-                      placeholder="${config.basePlaceholder || "0"}"
-                      readonly
-                      style="background-color: #f8f9fa; cursor: not-allowed;"
-                    />
-                    <button class="btn btn-xs btn-outline-info mt-1" style="font-size: 10px; padding: 2px 6px;" onclick="showResourceRollHistory('${
-                      config.resourceName
-                    }')" title="Ver histórico de rolls">
-                      📋 Histórico
-                    </button>
+                  <div class="col-md-${config.columnSize || 6}">
+                    <div class="hp-mana-section">
+                      <div class="row">
+                        ${diceSelector}
+                        <div class="col-4">
+                          <label class="form-label"><strong>Base ${
+                            config.resourceName
+                          }</strong></label>
+                          <input
+                            type="number"
+                            class="form-control large-input"
+                            id="${config.baseId}"
+                            placeholder="${config.basePlaceholder || "0"}"
+                            readonly
+                            style="background-color: #f8f9fa; cursor: not-allowed;"
+                          />
+                          <button class="btn btn-xs btn-outline-info mt-1" style="font-size: 10px; padding: 2px 6px;" onclick="showResourceRollHistory('${
+                            config.resourceName
+                          }')" title="Ver histórico de rolls">
+                            📋 Histórico
+                          </button>
+                        </div>
+                        <div class="col-4">
+                          <label class="form-label"><strong>Extra ${
+                            config.resourceName
+                          }</strong></label>
+                          <input
+                            type="number"
+                            class="form-control large-input"
+                            id="${config.extraId}"
+                            placeholder="${config.extraPlaceholder || "0"}"
+                            onchange="calculateResourceTotal('${
+                              config.resourceName
+                            }')"
+                          />
+                        </div>
+                        <div class="col-4">
+                          <label class="form-label"><strong>${
+                            config.totalLabel
+                          }</strong></label>
+                          <input
+                            type="number"
+                            class="form-control large-input"
+                            id="${config.totalId}"
+                            placeholder="${config.totalPlaceholder || "0"}"
+                            readonly
+                            style="background-color: #f8f9fa; cursor: not-allowed;"
+                          />
+                        </div>
+                        <div class="col-12 mt-2">
+                          <label class="form-label"><strong>${
+                            config.currentLabel
+                          }</strong></label>
+                          <input
+                            type="number"
+                            class="form-control large-input"
+                            id="${config.currentId}"
+                            placeholder="${config.currentPlaceholder || "0"}"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="col-4">
-                    <label class="form-label"><strong>Extra ${
-                      config.resourceName
-                    }</strong></label>
-                    <input
-                      type="number"
-                      class="form-control large-input"
-                      id="${config.extraId}"
-                      placeholder="${config.extraPlaceholder || "0"}"
-                      onchange="calculateResourceTotal('${
-                        config.resourceName
-                      }')"
-                    />
-                  </div>
-                  <div class="col-4">
-                    <label class="form-label"><strong>${
-                      config.totalLabel
-                    }</strong></label>
-                    <input
-                      type="number"
-                      class="form-control large-input"
-                      id="${config.totalId}"
-                      placeholder="${config.totalPlaceholder || "0"}"
-                      readonly
-                      style="background-color: #f8f9fa; cursor: not-allowed;"
-                    />
-                  </div>
-                  <div class="col-12 mt-2">
-                    <label class="form-label"><strong>${
-                      config.currentLabel
-                    }</strong></label>
-                    <input
-                      type="number"
-                      class="form-control large-input"
-                      id="${config.currentId}"
-                      placeholder="${config.currentPlaceholder || "0"}"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
+                `;
           return resourceHtml;
         }
 
@@ -1333,8 +1334,7 @@
               info: "Perícia sobre os conhecimentos do personagem com o mundo natural e fenômenos que possam ser correlacionados a ele ou ao mundo mágico.<br><br><b>Nível 1:</b>Flat bônus de +3 para rolagens desta perícia. <br><br><b>Nível 2:</b>Aumenta o flat bônus para +5 em rolagens desta perícia. <br><br><b>Nível 3:</b>A personagem recebe um desconto de 15 de gold na produção de venenos e poções.",
             },
             {
-              name: "Psicologia",
-              info: "Dita a habilidade do personagem em ler outros seres sapientes, discernir intenções e auxiliar em tratamento de personagens e NPCs.<br><br><b>Nível 1:</b>O personagem pode gastar 15 pontos de mana para determinar se alguém esta mentindo para ele, sem necessidade de roll. <br><br><b>Nível 2:</b>As técnicas terapêuticas do personagem se ampliam, permitindo com que ele possa uma vez por dia tratar um ponto de insanidade de um aliado. <br><br><b>Nível 3:</b>O conhecimento do personagem em psicologia é tamanho que ele pode, uma vez por dia, conversar com o grupo e remover 1 ponto de insanidade do grupo inteiro.",
+              name: "Planejamento",
             },
             {
               name: "Veterinária",
@@ -1374,6 +1374,7 @@
               name: "Intimidação",
               info: "Utilizada para que um jogador tente dissuadir um NPC ou outro jogador, pode também ser usada em combates para gerar efeitos de medo ao alvo. <br><br><b>Nível 1:</b> Recebe um flat bônus de +3 para rolagens no dado. <br><br><b>Nível 2:</b> Aumento do flat bônus para +5. O jogador pode queimar uma ação e 4 de mana para intimidar o seu adversário. Aplicando 1 ponto de medo. <br><br><b>Nível 3:</b> O jogador pode gastar sua ação e 8 de mana para intimidar uma área ao seu redor cujo raio é de 5 metros. Todos os alvos dentro desta área receberão 1 ponto de medo.",
             },
+            { name: "Intuição" },
             {
               name: "Mentira",
               info: "Implica na capacidade do personagem em elaborar mentiras ou então histórias ou argumentos falaciosos que sejam concisos. <br><br><b>Nível 1:</b> Recebe um flat bônus de +3 para rolagens no dado. <br><br><b>Nível 2:</b> Aumento do flat bônus para +5 para rolagens. <br><br><b>Nível 3:</b> Aumento do flat bônus para +7 para rolagens.",
@@ -1412,11 +1413,13 @@
               name: "Belas Artes",
               info: "Utilizada para quando há a tentativa de expressar por meio da arte, com pinturas, músicas, literatura, etc. <br><br><b>Nível 1:</b> O jogador pode gastar 7 pontos de mana para aplicar dois pontos de confusão ou um ponto de encantado a um alvo. Após o termino do efeito, o mesmo alvo não pode sofrer efeitos dessa habilidade por 5 minutos.<br><br><b>Nível 2:</b> A personagem pode gastar uma ação para, dentro de um raio de 10m, revelar uma grande obra. Podendo assim, aumentar ou diminuir 1 ponto de moral de todos aqueles dentro da área até o seu próximo turno. Caso o jogador escolha diminuir um ponto todos os aliados e inimigos estarão sob esse mesmo efeito. <br><br><b>Nível 3:</b> Fazendo uma grande demonstração artística o jogador pode enaltecer os feitos e conquistas de outro personagem. Concedendo-lhe 1 ponto de Honrado, sendo preciso no mínimo 1 hora de tempo e 20 pontos de mana (a critério do mestre pode ser cobrado algum recurso a ser aplicado na forma de ouro, como tintas que custem 20 de gold).",
             },
+            { name: "Costumes" },
+            { name: "Erudito" },
+            { name: "Misticismo" },
             {
-              name: "Artífice",
-              info: "Permite ao jogador identificar artefatos, aprender sua origem, obter bônus a partir deles e, finalmente, ascender um item ao estado de Artefato. <br><br><b>Nível 1:</b>O jogador pode gastar 1 dia analisando um artefato desconhecido para determinar qual é o seu efeito de artefato. <br><br><b>Nível 2:</b>Toda vez que o jogador identificar um artefato ele poderá escolher um dentre os seguintes bônus: <br>    +4 de HP permanente;<br>    +2 de MP permanente;<br>    +1 em rolagem de Cultura;<br>    +30 de Fervor; <br>    +500 de Gold.<br><br><b>Nível 3:</b>O jogador pode, uma vez em sua vida, ascender um item nível 3, com prístino 3,uma propriedade e 1 encantamento para um artefato. Para isso, este precisa gastar:<br>14 dias;<br>1000 de Gold;<br>Toda a sua mana;<br>Ecolhendo um efeito de artefato e atrelando-o ao item. O item deve então ser nomeado. Além disso, o jogador recebe:<br>2 pontos de exaustão;<br>2 pontos de insanidade. ",
+              name: "Psicologia",
+              info: "Dita a habilidade do personagem em ler outros seres sapientes, discernir intenções e auxiliar em tratamento de personagens e NPCs.<br><br><b>Nível 1:</b>O personagem pode gastar 15 pontos de mana para determinar se alguém esta mentindo para ele, sem necessidade de roll. <br><br><b>Nível 2:</b>As técnicas terapêuticas do personagem se ampliam, permitindo com que ele possa uma vez por dia tratar um ponto de insanidade de um aliado. <br><br><b>Nível 3:</b>O conhecimento do personagem em psicologia é tamanho que ele pode, uma vez por dia, conversar com o grupo e remover 1 ponto de insanidade do grupo inteiro.",
             },
-
             {
               name: "História",
               info: "Implica nos conhecimentos históricos do personagem a cerca de algum local, ambiente ou cultura. <br><br><b>Nível 1:</b> Para qualquer teste de história que vise obter informação sobre um povo, ambiente, local, pessoas há um bônus de +3 na rolagem. <br><br><b>Nível 2:</b> Há o aumento do bônus de rolagem para +5. A personagem melhora seu entendimento de ruínas, aumentando o bônus de ``Análise de Ruínas'' da perícia Folclore nível 3 de +5 para +7 pontos de folclore. <br><br><b>Nível 3:</b> O jogador pode gastar 1 dia estudando um artefato ou objeto mágico para entender a origem dele, tal como que povo a fez, de onde ela vem, características dela, etc. Caso o jogador possua Folclore nível 1, ele também recebe 4 pontos de folclore.",
@@ -1449,7 +1452,7 @@
           label: "Atletismo",
           sectionId: "atletismo",
           onClick: "handleSectionClick('atletismo')",
-          attribute: { label: "ALT", dataAttribute: "alt" },
+          attribute: { label: "ATL", dataAttribute: "atl" },
           skills: [
             {
               name: "Acrobacia",
@@ -1483,6 +1486,14 @@
               name: "Reflexos",
               info: "Perícia relativa aos reflexos do seu personagem, aprimorando suas capacidades de esquiva com ou sem armaduras. <br><br><b>Nível 1:</b>Ganho de +2 de AD para caso o jogador esteja ou sem armadura ou com uma armadura leve. <br><br><b>Nível 2:</b> O bônus de AD torna-se +3 e o efeito se aplica também para armaduras médias. <br><br><b>Nível 3:</b> O jogador pode utilizar 4 de mana para que em uma reação possa reduzir o dano de um ataque corpo a corpo em 2d8.",
             },
+            {
+              name: "Selvageria",
+              info: "Mede a força por de trás dos ataques que a personagem realiza.",
+            },
+            {
+              name: "Vontade",
+              info: "A vontade é uma perícia que implica na capacidade psicológica do personagem em suportar situações de estresse tão bem como efeitos que sejam da psique..",
+            },
           ],
           prestigios: [
             {
@@ -1496,38 +1507,29 @@
           ],
         },
         {
-          label: "Manufatura",
-          sectionId: "manufatura",
-          onClick: "handleSectionClick('manufatura')",
-          attribute: { label: "MAN", dataAttribute: "man" },
+          label: "Especialidade",
+          sectionId: "especialidade",
+          onClick: "handleSectionClick('especialidade')",
+          attribute: { label: "ESP", dataAttribute: "esp" },
           skills: [
+            { name: "Armeiro" },
             {
-              name: "Alfaiate",
-              info: "Permite com que o jogador possa fazer armaduras leves, roupas e tecidos, mediante uma rolagem de manufatura com dificuldade definida pelo mestre, se houver uma falha os recursos são destruídos. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b>Permite com que o personagem faça armaduras leves até nível 1 e com Prístino nível 1. <br><br><b>Nível 2:</b> Ao segundo nível, armaduras leves até o nível 2 podem ser feitas e com Prístino nível 2. <br><br><b>Nível 3:</b> No terceiro nível, armaduras leves podem ser feitas até o nível 3 e com Prístino nível 3 e, toda armadura leve feita pelo personagem, pode receber uma propriedade a escolha, caso possua os materiais necessários.",
+              name: "Arrombamento",
             },
             {
-              name: "Armeiro",
-              info: "Permite com que o jogador faça armas (corpo a corpo) de qualquer classe. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> Permite com que o personagem faça qualquer classe de arma em nível 1 (corpo a corpo) e com Prístino nível 1. <br><br><b>Nível 2:</b> Permite com que o personagem faça qualquer classe de arma em nível 2 (corpo a corpo) e com Prístino nível 2. <br><br><b>Nível 3:</b> Permite com que o personagem faça qualquer classe de arma em nível 3 (corpo a corpo) e com Prístino nível 3. E toda armadura moderada feita pelo personagem, pode receber uma propriedade a escolha, caso tenha os materiais necessários.",
+              name: "Cozinhar",
+            },
+            {
+              name: "Escriba",
+              info: "Permite com que o jogador possa copiar livros, pergaminhos e outros documentos escritos. O tempo de cópia e o custo de materiais fica a critério do mestre. <br><br><b>Nível 1:</b> Permite com que o personagem copie livros, pergaminhos e outros documentos escritos em nível 1 e com Prístino nível 1. <br><br><b>Nível 2:</b> Permite com que o personagem copie livros, pergaminhos e outros documentos escritos em nível 2 e com Prístino nível 2. <br><br><b>Nível 3:</b> Permite com que o personagem copie livros, pergaminhos e outros documentos escritos em nível 3 e com Prístino nível 3.",
             },
             {
               name: "Armoreiro",
               info: "Permite com que o jogador faça  armaduras pesadas. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> Permite com que o personagem faça armaduras pesadas até nível 1 e com Prístino nível 1.<br><br><b>Nível 2:</b> Permite com que o personagem faça armaduras pesadas até nível 2 e com Prístino nível 2. O jogador pode fazer qualquer tipo de escudo. <br><br><b>Nível 3:</b> Permite com que o personagem faça armaduras pesadas até nível 3 e com Prístino nível 3 e, toda armadura moderada feita pelo personagem, pode receber uma propriedade a escolha, caso tenha os materiais necessários.",
             },
             {
-              name: "Carpintaria",
-              info: "Permite com que o jogador possa fazer arcos, bestas e bordões. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> Permite com que o personagem faça qualquer arco, arco pesado, bestas ou bordões em nível 1 e com Prístino nível 1. O jogador pode fazer qualquer tipo de escudo.  <br><br><b>Nível 2:</b> Permite com que o personagem faça qualquer arco, arco pesado, bestas ou bordões em nível 2 e com Prístino nível 2. <br><br><b>Nível 3:</b> Permite com que o personagem faça qualquer arco, arco pesado, bestas ou bordões em nível 3 e com Prístino nível 3 e, elas podem receber uma propriedade a escolha, caso possua os materiais necessários.",
-            },
-            {
               name: "Disfarce",
               info: "Mede a capacidade do personagem em alterar a aparência e enganar aos NPCs próximos. Mediante uma rolagem de manufatura com dificuldade definida pelo mestre, se houver uma falha os recursos são destruídos. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> Utilizando de algumas tintas e plantas, o personagem pode fazer uma camuflagem básica. Recebe um bônus de +1d6 de furtividade para a pessoa camuflada. São necessários 5 de mana para isso.<br><br><b>Nível 2:</b> A personagem pode melhorar a aparência natural de um jogador, dando um bônus de +1d6 em rolagens de performance ou sedução. O custo de mana será de 7. <br><br><b>Nível 3:</b> O jogador consegue fazer uma maquiagem capaz de modificar a aparência geral da pessoa de maneira que esta receba +1d6 em rolagens de mentira para se passar por outra pessoa. São necessários 2 de mana para isso.",
-            },
-            {
-              name: "Coureiro",
-              info: "Permite com que o jogador faça  armaduras moderadas. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> Permite com que o personagem faça armaduras moderadas até nível 1 e com Prístino nível 1. <br><br><b>Nível 2:</b> Permite com que o personagem faça armaduras moderadas até nível 2 e com Prístino nível 2. <br><br><b>Nível 3:</b> Permite com que o personagem faça armaduras moderadas até nível 3 e com Prístino nível 3 e, toda armadura moderada feita pelo personagem, pode receber uma propriedade a escolha, caso tenha os materiais necessários.",
-            },
-            {
-              name: "Encantamento",
-              info: "Permite com que um item possa ser encantado pelo jogador, mediante uma rolagem de manufatura com dificuldade definida pelo mestre, se houver uma falha o item é destruído. Materiais, custo e tempo de produção ficam a critério do mestre. <br><br><b>Nível 1:</b> No primeiro nível, o jogador pode aplicar uma magia de uma essência no item de escolha. <br><br><b>Nível 2:</b> As magias podem ter até três essências no encantamento. <br><br><b>Nível 3:</b> O encantista pode agora encantar um item até 2 vezes.",
             },
             {
               name: "Escriba",
@@ -1568,6 +1570,9 @@
               info: "Dita a capacidade do personagem no domínio do uso das duas mãos, permitindo com que ele possa utilizar duas armas, uma em cada uma de suas mãos. Também auxilia no desbloqueio das armas de tipo Arc e ArcP. <br><br><b>Nível 1:</b>Permite o uso de duas armas leves distintas simultaneamente pelo personagem. Para o combate, é possível utilizar a ação de reforço para desferir um golpe com a arma que esteja na segunda mão (sendo necessário um segundo teste de combate). Esse bônus não é válido para armas Arc. <br><br><b>Nível 2:</b>O personagem pode utilizar armas longas ou cortante/perfurante simples na mão dominante. Esse bônus não é válido para armas Arc.  <br><br><b>Nível 3:</b>O personagem pode usar sua reação e 1 ponto de mana para rolar o dado de dano de sua arma secundária, reduzindo o dano de um ataque corpo a corpo, não mágico, neste valor. Esse bônus não é válido para armas Arc. ",
             },
             {
+              name: "Combate Desarmado",
+            },
+            {
               name: "Combate Improvisado",
               info: "Habilidade referente à capacidade de criar armas improvisadas ou então entrar em combate desarmado. <br><br><b>Nível 1:</b>O jogador usará 1d4 de dano para ataques desarmados. Além disso, o jogador pode utilizar objetos ao seu redor, como galhos, garrafas, pedras como armas improvisadas, essas armas dão 1d6 de dano e tem 1 uso <br><br><b>Nível 2:</b>O dano do jogador, para ataques desarmados, é aumentado para 2d4. O jogador ganha uma maior proficiência com armas improvisadas, fazendo com que essas causem 1d10 de dano e tenham 6 usos.  <br><br><b>Nível 3:</b>O dano para ataques desarmados torna-se 3d4. O jogador, ao realizar um ataque com arma improvisada, pode usar sua ação de reforço para realizar um novo ataque. ",
             },
@@ -1586,6 +1591,12 @@
             {
               name: "Bimanual",
               info: "Implica na capacidade do jogador de desbloquear armas do tipo CDM, PDM, CPP, LP e auxilia no desbloqueio da Best. Os bônus aqui presente são válidos apenas para esses tipo de arma. <br><br><b>Nível 1:</b>O raio de ameaça do jogador aumenta em 1.5 metro, exceto para Best e CDM. <br><br><b>Nível 2:</b>Reduz o slot das armas citadas em 1.  <br><br><b>Nível 3:</b>Permite gastar a ação de movimento e 4 de mana para aumentar o dano da arma em 1 dado de dano do nível 1 da sua arma até o seu próximo turno. ",
+            },
+            {
+              name: "Prístino",
+            },
+            {
+              name: "Presságio",
             },
           ],
           prestigios: [
@@ -1622,10 +1633,6 @@
               info: "Perícia utilizada para que um personagem possa roubar um NPC ou outro personagem de maneira furtiva. <br><br><b>Nível 1:</b> Para qualquer rolagem de natureza de bater carteira recebe um bônus de +3 na rolagem. <br><br><b>Nível 2:</b> Aumento do bônus de rolagem para +5. Fora isso você também pode andar pelas ruas e, sem realizar rolagens, roubar ouro das pessoas que ficam andando (a quantia de ouro é definida pelo mestre). <br><br><b>Nível 3:</b> Libera a possibilidade de fazer testes de bater carteira para implantar objetos nos outros ao invés de rouba-los.",
             },
             {
-              name: "Cozinhar",
-              info: "Dita a capacidade gastronômica do personagem. <br><br><b>Nível 1:</b> O personagem será capaz de, sem um kit de cozinha, produzir rações que possuem 2 usos. Para tal, será necessário algum tipo de matéria prima, tal como carne, farinha, etc. As rações duplicadas não podem ser duplicadas novamente. <br><br><b>Nível 2:</b>A personagem pode converter uma ração para que ela seja ou uma ração de vida ou uma ração de mana, permitindo que ela recupere pontos de vida ou mana. Gastando 5 de mana para realizar a conversão;<br>Ração de Vida: Permite com que quem a coma ganhe até 1d10 de vida.<br>Ração de Mana: Permite com que quem a coma ganhe até 1d6 de mana.  <br><br><b>Nível 3:</b>A sua personagem é um grande mestre cuca, podendo cozinhar um banquete que revigora os aliados que o consomem. O banquete consome 5 de mana.<br>Banquete: O banquete recupera 6d6 pontos de vida de todos que o consomem, o tempo de preparo é de 1 hora e exige uma ração por participante. ",
-            },
-            {
               name: "Furtividade",
               info: "Perícia que mede o quão bem o seu personagem é capaz de se manter oculto e/ou omisso em um dado ambiente. <br><br><b>Nível 1:</b> Para cada rolagem que enfoque em ficar furtivo, se esconder, recebe um bônus de +3 na rolagem. <br><br><b>Nível 2:</b> O bônus é aumentado para +5 e em áreas com alta densidade populacional o bônus torna-se +7.  <br><br><b>Nível 3:</b> Todos os aliados que estejam fazendo um teste de furtividade com o jogador e não possuam nenhum ponto na perícia recebem o bônus de +3 na rolagem.",
             },
@@ -1650,9 +1657,10 @@
               info: "Mede a capacidade do jogador em perceber seus arredores e mudanças no ambiente ao qual ele se encontra. <br><br><b>Nível 1:</b> Para qualquer rolagem de natureza de percepção recebe um bônus de +3 na rolagem. <br><br><b>Nível 2:</b> Aumento do bônus de rolagem para +5. <br><br><b>Nível 3:</b> Aumento do bônus de rolagem para +7 e o bônus aumenta para +10 se for percepção de armadilha.",
             },
             {
-              name: "Vontade",
-              info: "A vontade é uma perícia que implica na capacidade psicológica do personagem em suportar situações de estresse tão bem como efeitos que sejam da psique. <br><br><b>Nível 1:</b> O primeiro ponto de insanidade obtido no dia é negado. <br><br><b>Nível 2:</b> O jogador poderá gastar uma ação de reforço e 5 pontos de mana para remover 1d4 dentre as seguintes condições: confusão, encantado, medo, paralisado, triste ou moral. <br><br><b>Nível 3:</b> O personagem pode escolher um dentre as seguintes condições para ter imunidade: atordoado, confusão, encantado, hipnotizado, medo ou triste. Fora isso, o primeiro ponto de insanidade não possuí efeito.",
+              name: "Rastreio",
+              info: "",
             },
+            { name: "Sutil" },
           ],
           prestigios: [
             {
@@ -2698,55 +2706,55 @@
       // Add CSS for highlighted sections
       const style = document.createElement("style");
       style.textContent = `
-            .highlighted .section-title {
-                background: #007bff !important;
-                transform: scale(1.02);
-                transition: all 0.2s ease;
-            }
-            .section-title:hover {
-                opacity: 0.8;
-                transition: opacity 0.2s ease;
-            }
-            .skill-level:disabled {
-                opacity: 0.3 !important;
-                cursor: not-allowed !important;
-            }
-            .skill-level:disabled + .level-label {
-                color: #6c757d !important;
-                opacity: 0.3 !important;
-            }
-            .skill-levels:not(.disabled) .skill-level:not(:disabled) {
-                opacity: 1;
-                cursor: pointer;
-            }
-            .skill-levels:not(.disabled) .skill-level:not(:disabled) + .level-label {
-                color: inherit;
-                opacity: 1;
-            }
-            input[data-attribute] {
-                border: 2px solid #333;
-                font-weight: bold;
-            }
-            input[data-attribute]:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-            }
-            .essence-quantity:disabled {
-                opacity: 0.5 !important;
-                background-color: #f8f9fa !important;
-                cursor: not-allowed !important;
-            }
-            .essence-quantity-container {
-                margin-bottom: 8px;
-            }
-            .essence-checkbox {
-                margin-right: 8px;
-            }
-            .essence-label {
-                min-width: 120px;
-                font-weight: 500;
-            }
-        `;
+                  .highlighted .section-title {
+                      background: #007bff !important;
+                      transform: scale(1.02);
+                      transition: all 0.2s ease;
+                  }
+                  .section-title:hover {
+                      opacity: 0.8;
+                      transition: opacity 0.2s ease;
+                  }
+                  .skill-level:disabled {
+                      opacity: 0.3 !important;
+                      cursor: not-allowed !important;
+                  }
+                  .skill-level:disabled + .level-label {
+                      color: #6c757d !important;
+                      opacity: 0.3 !important;
+                  }
+                  .skill-levels:not(.disabled) .skill-level:not(:disabled) {
+                      opacity: 1;
+                      cursor: pointer;
+                  }
+                  .skill-levels:not(.disabled) .skill-level:not(:disabled) + .level-label {
+                      color: inherit;
+                      opacity: 1;
+                  }
+                  input[data-attribute] {
+                      border: 2px solid #333;
+                      font-weight: bold;
+                  }
+                  input[data-attribute]:focus {
+                      border-color: #007bff;
+                      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+                  }
+                  .essence-quantity:disabled {
+                      opacity: 0.5 !important;
+                      background-color: #f8f9fa !important;
+                      cursor: not-allowed !important;
+                  }
+                  .essence-quantity-container {
+                      margin-bottom: 8px;
+                  }
+                  .essence-checkbox {
+                      margin-right: 8px;
+                  }
+                  .essence-label {
+                      min-width: 120px;
+                      font-weight: 500;
+                  }
+              `;
       document.head.appendChild(style);
 
       // Initialize the extensible components when the page loads
@@ -2791,13 +2799,13 @@
           // Conhecimento is index 0
           const conhecimentoConfig = skillSectionsConfig[0];
           const conhecimentoHtml = `
-            <div class="checkbox-list">
-              ${skillComponent.generateCheckboxes(
-                conhecimentoConfig.skills,
-                conhecimentoConfig.sectionId
-              )}
-            </div>
-          `;
+                  <div class="checkbox-list">
+                    ${skillComponent.generateCheckboxes(
+                      conhecimentoConfig.skills,
+                      conhecimentoConfig.sectionId
+                    )}
+                  </div>
+                `;
           sistemaFaqSection.innerHTML = conhecimentoHtml;
         }
 
@@ -2809,13 +2817,13 @@
           // Magia is index 7
           const magiaConfig = skillSectionsConfig[7];
           const magiaHtml = `
-            <div class="checkbox-list">
-              ${skillComponent.generateCheckboxes(
-                magiaConfig.skills,
-                magiaConfig.sectionId
-              )}
-            </div>
-          `;
+                  <div class="checkbox-list">
+                    ${skillComponent.generateCheckboxes(
+                      magiaConfig.skills,
+                      magiaConfig.sectionId
+                    )}
+                  </div>
+                `;
           magiaSection.innerHTML = magiaHtml;
         }
 
@@ -2929,10 +2937,10 @@
           if (skillSectionsConfig[configIndex]) {
             const config = skillSectionsConfig[configIndex];
             mainHtml += `
-              <div class="col-md-3">
-                ${skillComponent.renderSection(config)}
-              </div>
-            `;
+                    <div class="col-md-3">
+                      ${skillComponent.renderSection(config)}
+                    </div>
+                  `;
           }
         });
         mainHtml += "</div>";
@@ -2944,10 +2952,10 @@
           if (skillSectionsConfig[configIndex]) {
             const config = skillSectionsConfig[configIndex];
             additionalHtml += `
-              <div class="col-md-3">
-                ${skillComponent.renderSection(config)}
-              </div>
-            `;
+                    <div class="col-md-3">
+                      ${skillComponent.renderSection(config)}
+                    </div>
+                  `;
           }
         });
         additionalHtml += "</div>";
@@ -4025,38 +4033,40 @@
             const requiredLabel = field.required ? " *" : "";
 
             fieldDiv.innerHTML = `
-              <label for="${selectId}" class="form-label">
-                <strong>${field.title}${requiredLabel}</strong>
-              </label>
-              <select class="form-control magic-component-select" 
-                      id="${selectId}" 
-                      data-field-id="${field.id}"
-                      title="${field.description}"
-                      onchange="updateFinalCostDisplay()">
-                ${
-                  field.required
-                    ? ""
-                    : '<option value="">-- Selecione ' +
-                      field.title +
-                      " --</option>"
-                }
-                ${field.options
-                  .map(
-                    (option, index) =>
-                      `<option value="${option.id}" title="Custo: ×${
-                        option.costModifier
-                      }" ${field.required && index === 0 ? "selected" : ""}>
-                    ${option.name} (×${option.costModifier})
-                   </option>`
-                  )
-                  .join("")}
-              </select>
-              ${
-                field.description
-                  ? `<small class="form-text text-muted">${field.description}</small>`
-                  : ""
-              }
-            `;
+                    <label for="${selectId}" class="form-label">
+                      <strong>${field.title}${requiredLabel}</strong>
+                    </label>
+                    <select class="form-control magic-component-select"
+                            id="${selectId}"
+                            data-field-id="${field.id}"
+                            title="${field.description}"
+                            onchange="updateFinalCostDisplay()">
+                      ${
+                        field.required
+                          ? ""
+                          : '<option value="">-- Selecione ' +
+                            field.title +
+                            " --</option>"
+                      }
+                      ${field.options
+                        .map(
+                          (option, index) =>
+                            `<option value="${option.id}" title="Custo: ×${
+                              option.costModifier
+                            }" ${
+                              field.required && index === 0 ? "selected" : ""
+                            }>
+                          ${option.name} (×${option.costModifier})
+                         </option>`
+                        )
+                        .join("")}
+                    </select>
+                    ${
+                      field.description
+                        ? `<small class="form-text text-muted">${field.description}</small>`
+                        : ""
+                    }
+                  `;
 
             container.appendChild(fieldDiv);
           });
@@ -4073,14 +4083,14 @@
           const headerDiv = document.createElement("div");
           headerDiv.className = "mb-3";
           headerDiv.innerHTML = `
-            <h6 class="mb-2">🔮 Seleção de Essências</h6>
-            <small class="text-muted">Selecione as essências para calcular o custo base da magia.</small>
-            <div class="mt-2">
-              <span id="calculated-base-cost" class="badge bg-info">Custo Base: 1</span>
-              <span id="calculated-final-cost" class="badge bg-success ms-2">Custo Final: 1</span>
-              <span id="calculated-final-dice" class="badge bg-warning ms-2">Dados: Nenhum dado</span>
-            </div>
-          `;
+                  <h6 class="mb-2">🔮 Seleção de Essências</h6>
+                  <small class="text-muted">Selecione as essências para calcular o custo base da magia.</small>
+                  <div class="mt-2">
+                    <span id="calculated-base-cost" class="badge bg-info">Custo Base: 1</span>
+                    <span id="calculated-final-cost" class="badge bg-success ms-2">Custo Final: 1</span>
+                    <span id="calculated-final-dice" class="badge bg-warning ms-2">Dados: Nenhum dado</span>
+                  </div>
+                `;
           container.appendChild(headerDiv);
 
           // Create essences by hemisphere
@@ -4088,51 +4098,53 @@
             const hemisphereDiv = document.createElement("div");
             hemisphereDiv.className = "mb-3 p-2 border rounded";
             hemisphereDiv.innerHTML = `
-              <h6 class="mb-2 text-primary">${hemisphere.name}</h6>
-              <div class="essence-checkboxes" data-hemisphere="${
-                hemisphere.id
-              }">
-                ${hemisphere.essences
-                  .map(
-                    (essence) => `
-                  <div class="form-check form-check-inline essence-quantity-container d-flex align-items-center">
-                    <div class="d-flex align-items-center">
-                      <label class="form-check-label essence-label me-2" for="essence-${
-                        essence.id
-                      }">
-                        ${essence.name} (${essence.cost})${
-                      essence.info
-                        ? `<button class="essence-info-btn" 
-                                               onclick="showInfo('${essence.id}', '${essence.name}', \`${essence.info}\`)" 
-                                               title="Ver informações sobre ${essence.name}">ℹ</button>`
-                        : ""
-                    }
-                      </label>
-                      <input class="form-check-input essence-checkbox me-2" 
-                             type="checkbox" 
-                             id="essence-checkbox-${essence.id}" 
-                             data-essence-id="${essence.id}"
-                             onchange="toggleEssenceQuantity('${essence.id}')"
-                             title="Habilitar seleção de ${essence.name}">
-                      <input class="form-control essence-quantity" 
-                             type="number" 
-                             id="essence-${essence.id}" 
-                             value="0"
-                             min="0"
-                             max="10"
-                             data-essence-id="${essence.id}"
-                             onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
-                             title="Quantidade de ${essence.name} (custo: ${
-                      essence.cost
-                    } cada)"
-                             disabled>
+                    <h6 class="mb-2 text-primary">${hemisphere.name}</h6>
+                    <div class="essence-checkboxes" data-hemisphere="${
+                      hemisphere.id
+                    }">
+                      ${hemisphere.essences
+                        .map(
+                          (essence) => `
+                        <div class="form-check form-check-inline essence-quantity-container d-flex align-items-center">
+                          <div class="d-flex align-items-center">
+                            <label class="form-check-label essence-label me-2" for="essence-${
+                              essence.id
+                            }">
+                              ${essence.name} (${essence.cost})${
+                            essence.info
+                              ? `<button class="essence-info-btn"
+                                                     onclick="showInfo('${essence.id}', '${essence.name}', \`${essence.info}\`)"
+                                                     title="Ver informações sobre ${essence.name}">ℹ</button>`
+                              : ""
+                          }
+                            </label>
+                            <input class="form-check-input essence-checkbox me-2"
+                                   type="checkbox"
+                                   id="essence-checkbox-${essence.id}"
+                                   data-essence-id="${essence.id}"
+                                   onchange="toggleEssenceQuantity('${
+                                     essence.id
+                                   }')"
+                                   title="Habilitar seleção de ${essence.name}">
+                            <input class="form-control essence-quantity"
+                                   type="number"
+                                   id="essence-${essence.id}"
+                                   value="0"
+                                   min="0"
+                                   max="10"
+                                   data-essence-id="${essence.id}"
+                                   onchange="updateBaseCostFromEssences(); updateFinalDiceDisplay()"
+                                   title="Quantidade de ${
+                                     essence.name
+                                   } (custo: ${essence.cost} cada)"
+                                   disabled>
+                          </div>
+                        </div>
+                      `
+                        )
+                        .join("")}
                     </div>
-                  </div>
-                `
-                  )
-                  .join("")}
-              </div>
-            `;
+                  `;
             container.appendChild(hemisphereDiv);
           });
         }
@@ -4199,55 +4211,57 @@
           let proximityInfo = "";
           if (proximityDetails.modifier > 1.0) {
             proximityInfo = `
-              <div class="magic-proximity">
-                <small class="text-info">Modificador Hemisférios: ×${proximityDetails.modifier.toFixed(
-                  2
-                )}</small>
-              </div>
-            `;
+                    <div class="magic-proximity">
+                      <small class="text-info">Modificador Hemisférios: ×${proximityDetails.modifier.toFixed(
+                        2
+                      )}</small>
+                    </div>
+                  `;
           }
 
           // Create roll button if dice are available
           let rollButton = "";
           if (hasDice) {
             rollButton = `
-              <button class="magic-roll-btn btn btn-sm btn-outline-primary" 
-                      onclick="rollMagicDice(${magic.id})" 
-                      title="Rolar dados da magia">
-                🎲 Rolar
-              </button>
-            `;
+                    <button class="magic-roll-btn btn btn-sm btn-outline-primary"
+                            onclick="rollMagicDice(${magic.id})"
+                            title="Rolar dados da magia">
+                      🎲 Rolar
+                    </button>
+                  `;
           }
 
           magicDiv.innerHTML = `
-            <button class="magic-remove-btn" onclick="magicManager.removeMagic(${
-              magic.id
-            })" title="Remover magia">
-              ✕
-            </button>
-            <div class="magic-name">${this.escapeHtml(magic.name)}</div>
-            <div class="magic-details">
-              <div class="magic-essences">
-                <small class="text-muted">Essências:</small> ${this.escapeHtml(
-                  essencesDisplay
-                )}
-              </div>
-              ${proximityInfo}
-              <div class="magic-components">
-                <small class="text-muted">Componentes:</small> ${this.escapeHtml(
-                  componentDisplay
-                )}
-              </div>
-              <div class="magic-cost-breakdown">
-                <span class="magic-base-cost">Base: ${magic.baseCost}</span>
-                <span class="magic-final-cost">Final: ${finalCost}</span>
-                <span class="magic-dice">Dados: ${this.escapeHtml(
-                  diceDisplay
-                )}</span>
-                ${rollButton}
-              </div>
-            </div>
-          `;
+                  <button class="magic-remove-btn" onclick="magicManager.removeMagic(${
+                    magic.id
+                  })" title="Remover magia">
+                    ✕
+                  </button>
+                  <div class="magic-name">${this.escapeHtml(magic.name)}</div>
+                  <div class="magic-details">
+                    <div class="magic-essences">
+                      <small class="text-muted">Essências:</small> ${this.escapeHtml(
+                        essencesDisplay
+                      )}
+                    </div>
+                    ${proximityInfo}
+                    <div class="magic-components">
+                      <small class="text-muted">Componentes:</small> ${this.escapeHtml(
+                        componentDisplay
+                      )}
+                    </div>
+                    <div class="magic-cost-breakdown">
+                      <span class="magic-base-cost">Base: ${
+                        magic.baseCost
+                      }</span>
+                      <span class="magic-final-cost">Final: ${finalCost}</span>
+                      <span class="magic-dice">Dados: ${this.escapeHtml(
+                        diceDisplay
+                      )}</span>
+                      ${rollButton}
+                    </div>
+                  </div>
+                `;
 
           return magicDiv;
         }
@@ -4860,14 +4874,14 @@
 
         // Set popup content
         popup.innerHTML = `
-          <div class="essence-info-popup-header">
-            <h3 class="essence-info-popup-title">${title}</h3>
-            <button class="essence-info-popup-close" onclick="hideInfo('${type}')" title="Fechar">×</button>
-          </div>
-          <div class="essence-info-popup-content">
-            ${content}
-          </div>
-        `;
+                <div class="essence-info-popup-header">
+                  <h3 class="essence-info-popup-title">${title}</h3>
+                  <button class="essence-info-popup-close" onclick="hideInfo('${type}')" title="Fechar">×</button>
+                </div>
+                <div class="essence-info-popup-content">
+                  ${content}
+                </div>
+              `;
 
         // Show overlay and popup
         overlay.classList.add("show");
