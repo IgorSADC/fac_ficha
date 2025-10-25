@@ -2414,6 +2414,10 @@
             loadCharacterData(data);
             // Recalculate points after loading
             calculateTotalPoints();
+            // Update skill modifier based on loaded Feitiçaria level
+            setTimeout(() => {
+              updateSkillModifierFromFeiticaria();
+            }, 100);
             console.log("Character data loaded from localStorage");
             return true;
           }
@@ -2912,6 +2916,9 @@
             updateFinalCostDisplay();
           });
         }
+        
+        // Initialize skill modifier based on Feitiçaria level
+        updateSkillModifierFromFeiticaria();
       });
 
       function setupAutoSave() {
@@ -3068,7 +3075,56 @@
 
         // Update point calculation after skill change
         calculateTotalPoints();
+        
+        // Update skill modifier if Feitiçaria skill changed
+        if (skillName === "Feitiçaria") {
+          updateSkillModifierFromFeiticaria();
+        }
+        
         return true;
+      }
+
+      // Function to get Feitiçaria skill level
+      function getFeiticariaLevel() {
+        // Find Feitiçaria skill in magia section
+        const feiticariaContainer = document.querySelector(
+          '[data-skill="Feitiçaria"][data-section="magia"]'
+        );
+        
+        if (!feiticariaContainer) return 0;
+        
+        const levelCheckboxes = feiticariaContainer.querySelectorAll('.skill-level:checked');
+        let maxLevel = 0;
+        
+        levelCheckboxes.forEach((checkbox) => {
+          const level = parseInt(checkbox.dataset.level) || 0;
+          if (level > maxLevel) maxLevel = level;
+        });
+        
+        return maxLevel;
+      }
+
+      // Function to update skill modifier based on Feitiçaria level
+      function updateSkillModifierFromFeiticaria() {
+        const feiticariaLevel = getFeiticariaLevel();
+        const skillModifierInput = document.getElementById("magic-skill-modifier-input");
+        
+        if (!skillModifierInput) return;
+        
+        // Set modifier based on Feitiçaria level
+        let modifier = 1.0;
+        if (feiticariaLevel === 1) {
+          modifier = 0.95;
+        } else if (feiticariaLevel === 2) {
+          modifier = 0.9;
+        } else if (feiticariaLevel === 3) {
+          modifier = 0.85;
+        }
+        
+        skillModifierInput.value = modifier.toFixed(2);
+        
+        // Trigger cost update
+        updateFinalCostDisplay();
       }
 
       // Function to toggle Prestigio skills (costs 1 attribute point each)
@@ -4734,11 +4790,6 @@
           costInput.value = "1";
           diceInput.value = "";
           diceInput.placeholder = "Nenhum dado";
-          
-          // Reset skill modifier to 1.0
-          if (skillModifierInput) {
-            skillModifierInput.value = "1.0";
-          }
 
           // Reset all component selects to default values
           componentSelects.forEach((select) => {
@@ -4756,20 +4807,10 @@
             }
           });
 
-          // Reset essence quantity inputs to 0 but keep checkboxes checked
+          // Reset essence quantity inputs to 0 but keep checkboxes in their current state
           essenceQuantityInputs.forEach((input) => {
-            const essenceId = input.dataset.essenceId;
-            const checkbox = document.getElementById(
-              `essence-checkbox-${essenceId}`
-            );
-
-            // Only reset quantity to 0, keep checkboxes and enabled state as they are
+            // Reset quantity to 0, keep checkboxes as they are
             input.value = "0";
-
-            // If checkbox is unchecked, keep input disabled; if checked, keep it enabled
-            if (checkbox && !checkbox.checked) {
-              input.disabled = true;
-            }
           });
 
           // Update base cost display
