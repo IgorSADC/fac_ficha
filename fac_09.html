@@ -829,6 +829,21 @@
                       >
                     </div>
                     <div class="mb-3">
+                      <label for="magic-skill-modifier-input" class="form-label"
+                        >Modificadores de Perícia</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="magic-skill-modifier-input"
+                        placeholder="1.0"
+                        value="1.0"
+                        step="0.05"
+                        min="0"
+                        title="Modificador de habilidade para a magia"
+                      />
+                    </div>
+                    <div class="mb-3">
                       <label for="magic-cost-input" class="form-label"
                         >Custo Base (Calculado)</label
                       >
@@ -2889,6 +2904,14 @@
             updateFinalCostDisplay();
           }, 100);
         }
+
+        // Add event listener for skill modifier input
+        const skillModifierInput = document.getElementById("magic-skill-modifier-input");
+        if (skillModifierInput) {
+          skillModifierInput.addEventListener("input", function() {
+            updateFinalCostDisplay();
+          });
+        }
       });
 
       function setupAutoSave() {
@@ -3283,7 +3306,8 @@
           componentSelections = {},
           essenceQuantities = {},
           baseCost = null,
-          dice = null
+          dice = null,
+          skillModifier = 1.0
         ) {
           this.id = Date.now() + Math.random(); // Simple unique ID
           this.name = name;
@@ -3291,6 +3315,7 @@
           this.essenceQuantities = essenceQuantities; // Object with essenceId: quantity
           this.baseCost = baseCost || this.calculateBaseCostFromEssences();
           this.dice = dice || this.getFinalDice(); // Final dice string
+          this.skillModifier = skillModifier; // Skill modifier for final cost
           this.createdAt = new Date();
         }
 
@@ -3350,7 +3375,10 @@
             }
           });
 
-          return Math.ceil(this.baseCost * totalModifier);
+          // Apply skill modifier
+          const finalModifier = totalModifier * (this.skillModifier || 1.0);
+
+          return Math.ceil(this.baseCost * finalModifier);
         }
 
         // Calculate final dice from selected essences
@@ -3957,7 +3985,8 @@
           componentSelections,
           essenceQuantities,
           baseCost = 1,
-          dice = null
+          dice = null,
+          skillModifier = 1.0
         ) {
           if (!name || !name.trim()) {
             alert("Por favor, digite um nome para a magia.");
@@ -3989,7 +4018,8 @@
             componentSelections,
             essenceQuantities,
             baseCost,
-            dice
+            dice,
+            skillModifier
           );
           this.magics.push(magic);
           this.saveMagicsToStorage();
@@ -4534,6 +4564,10 @@
         const costInput = document.getElementById("magic-cost-input");
         const baseCost = costInput ? parseInt(costInput.value) || 1 : 1;
 
+        // Get skill modifier
+        const skillModifierInput = document.getElementById("magic-skill-modifier-input");
+        const skillModifier = skillModifierInput ? parseFloat(skillModifierInput.value) || 1.0 : 1.0;
+
         // Get component selections
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
@@ -4559,7 +4593,8 @@
           }
         });
 
-        const finalCost = Math.ceil(baseCost * totalModifier);
+        // Apply skill modifier to the final cost
+        const finalCost = Math.ceil(baseCost * totalModifier * skillModifier);
         const finalCostDisplay = document.getElementById(
           "calculated-final-cost"
         );
@@ -4642,6 +4677,7 @@
         const nameInput = document.getElementById("magic-name-input");
         const costInput = document.getElementById("magic-cost-input");
         const diceInput = document.getElementById("magic-dice-input");
+        const skillModifierInput = document.getElementById("magic-skill-modifier-input");
         const componentSelects = document.querySelectorAll(
           ".magic-component-select"
         );
@@ -4656,6 +4692,7 @@
         const name = nameInput.value;
         const baseCost = parseInt(costInput.value) || 1;
         const dice = diceInput.value.trim() || null;
+        const skillModifier = skillModifierInput ? parseFloat(skillModifierInput.value) || 1.0 : 1.0;
 
         // Collect essence quantities (only from checked essences)
         const essenceQuantities = {};
@@ -4688,7 +4725,8 @@
             componentSelections,
             essenceQuantities,
             baseCost,
-            dice
+            dice,
+            skillModifier
           )
         ) {
           // Clear inputs on success
@@ -4696,6 +4734,11 @@
           costInput.value = "1";
           diceInput.value = "";
           diceInput.placeholder = "Nenhum dado";
+          
+          // Reset skill modifier to 1.0
+          if (skillModifierInput) {
+            skillModifierInput.value = "1.0";
+          }
 
           // Reset all component selects to default values
           componentSelects.forEach((select) => {
