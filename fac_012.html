@@ -1270,6 +1270,9 @@
         }
       }
 
+      // Save prefix constant for localStorage keys
+      const SAVE_PREFIX = "fac_012_";
+
       // Configuration JSON for resource sections
       const resourceSectionsConfig = [
         {
@@ -2024,7 +2027,7 @@
 
       // Function to save resource roll history
       function saveResourceRollHistory(resourceName, rollHistory) {
-        const key = `fac_09_${resourceName.toLowerCase()}_roll_history`;
+        const key = `${SAVE_PREFIX}${resourceName.toLowerCase()}_roll_history`;
         try {
           localStorage.setItem(key, JSON.stringify(rollHistory));
         } catch (error) {
@@ -2037,7 +2040,7 @@
 
       // Function to get resource roll history
       function getResourceRollHistory(resourceName) {
-        const key = `fac_09_${resourceName.toLowerCase()}_roll_history`;
+        const key = `${SAVE_PREFIX}${resourceName.toLowerCase()}_roll_history`;
         try {
           const history = localStorage.getItem(key);
           return history ? JSON.parse(history) : [];
@@ -2151,7 +2154,7 @@
               );
               rollHistory = []; // Clear the history
               localStorage.setItem(
-                `fac_09_${config.resourceName.toLowerCase()}_roll_history`,
+                `${SAVE_PREFIX}${config.resourceName.toLowerCase()}_roll_history`,
                 JSON.stringify(rollHistory)
               );
             }
@@ -2398,7 +2401,7 @@
       function saveCharacterDataToStorage() {
         const data = saveCharacterData();
         try {
-          localStorage.setItem("fac_09_character_sheet", JSON.stringify(data));
+          localStorage.setItem(SAVE_PREFIX + "character_sheet", JSON.stringify(data));
           console.log("Character data saved to localStorage");
         } catch (error) {
           console.error("Error saving to localStorage:", error);
@@ -2408,7 +2411,7 @@
       // Function to load character data from localStorage
       function loadCharacterDataFromStorage() {
         try {
-          const savedData = localStorage.getItem("fac_09_character_sheet");
+          const savedData = localStorage.getItem(SAVE_PREFIX + "character_sheet");
           if (savedData) {
             const data = JSON.parse(savedData);
             loadCharacterData(data);
@@ -2430,12 +2433,12 @@
       // Function to clear saved character data
       function clearSavedCharacterData() {
         try {
-          localStorage.removeItem("fac_09_character_sheet");
-          localStorage.removeItem("fac_09_character_magics");
+          localStorage.removeItem(SAVE_PREFIX + "character_sheet");
+          localStorage.removeItem(SAVE_PREFIX + "character_magics");
           // Clear roll histories for all resources
           resourceSectionsConfig.forEach((config) => {
             localStorage.removeItem(
-              `fac_09_${config.resourceName.toLowerCase()}_roll_history`
+              `${SAVE_PREFIX}${config.resourceName.toLowerCase()}_roll_history`
             );
           });
 
@@ -2894,7 +2897,7 @@
           setTimeout(() => {
             // Load saved character data to get essence selection state
             try {
-              const savedData = localStorage.getItem("fac_09_character_sheet");
+              const savedData = localStorage.getItem(SAVE_PREFIX + "character_sheet");
               if (savedData) {
                 const data = JSON.parse(savedData);
                 if (data.currentEssenceSelection) {
@@ -4377,7 +4380,7 @@
           try {
             const data = this.magics.map((magic) => magic.toJSON());
             localStorage.setItem(
-              "fac_09_character_magics",
+              SAVE_PREFIX + "character_magics",
               JSON.stringify(data)
             );
             console.log("Magics saved to localStorage");
@@ -4389,7 +4392,7 @@
         // Load magics from localStorage
         loadMagicsFromStorage() {
           try {
-            const data = localStorage.getItem("fac_09_character_magics");
+            const data = localStorage.getItem(SAVE_PREFIX + "character_magics");
             if (data) {
               const magicsData = JSON.parse(data);
               this.magics = magicsData.map((magicData) =>
