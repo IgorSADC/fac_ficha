@@ -3383,22 +3383,6 @@
           }
         });
 
-        let multiplier = 1;
-        if (
-          this.componentSelections &&
-          this.componentSelections["dice_multiplier"]
-        ) {
-          const multValue = parseInt(
-            this.componentSelections["dice_multiplier"]
-          );
-          if (!isNaN(multValue) && multValue > 0) {
-            multiplier = multValue;
-          }
-        }
-
-        Object.keys(diceMap).forEach((diceType) => {
-          diceMap[diceType] *= multiplier;
-        });
 
         // Format final dice string
         const diceStrings = Object.keys(diceMap)
@@ -3886,19 +3870,6 @@
               { id: "moderado", name: "Moderado", costModifier: 1.0 },
               { id: "baixa", name: "Instantâneo", costModifier: 1.4 },
               { id: "pesado", name: "Pesado", costModifier: 0.8 },
-            ],
-          },
-          {
-            id: "dice_multiplier",
-            title: "Multiplicador de Dados",
-            description: "Multiplicador de dados para a magia",
-            required: true,
-            options: [
-              { id: "1", name: "1", costModifier: 1.0 },
-              { id: "2", name: "2", costModifier: 3 },
-              { id: "3", name: "3", costModifier: 6 },
-              { id: "4", name: "4", costModifier: 9 },
-              { id: "5", name: "5", costModifier: 12 },
             ],
           },
         ];
